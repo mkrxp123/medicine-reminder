@@ -1,5 +1,10 @@
-import sqlite3
+import json, sqlite3
 sqlite3.enable_callback_tracebacks(True)
+
+def getKey():
+    with open("setting/key.json", 'r') as f:
+        config = json.load(f)
+    return config
 
 class timetable:
     def __init__(self):

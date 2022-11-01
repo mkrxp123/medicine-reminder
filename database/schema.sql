@@ -1,0 +1,5 @@
+CREATE TABLE
+    if NOT EXISTS Users(
+        UID INTEGER PRIMARY KEY NOT NULL
+
+    );
