@@ -24,12 +24,16 @@
 		</div>
 	</nav>
 	<div class="container">
-		<ul class="nav nav-tabs">
-			<li class="active"><a href="#Profile">Profile</a></li>
-			<li><a href="#temp">temp</a></li>
+		<ul class="nav nav-tabs" id="myTab" role="tablist">
+			<li class="nav-item active">
+				<a class="nav-link active" id="home-tab" data-toggle="tab" href="#Profile" role="tab" aria-controls="home" aria-selected="true">Profile</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact1" role="tab" aria-controls="contact" aria-selected="false">Contact</a>
+			</li>
 		</ul>
-		<div class="tab-content">
-			<div id="Profile" class="tab-pane fade in active">
+		<div class="tab-content" id="myTabContent">
+			<div class="tab-pane fade in active" id="Profile" role="tabpanel" aria-labelledby="home-tab">
 				<h3>Profile</h3>
 				<div class="row">
 					<div class="col-xs-12">
@@ -67,9 +71,8 @@
 					</div>
 				</div>
 			</div>
-
-			<div id="temp" class="tab-pane fade">
-				<h3>temp</h3>
+			<div class="tab-pane fade" id="contact1" role="tabpanel" aria-labelledby="contact-tab">
+				<h3>Form</h3>
 			</div>
 		</div>
 	</div>
