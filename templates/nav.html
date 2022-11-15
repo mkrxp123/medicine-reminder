@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<!-- Required meta tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<!-- Bootstrap CSS -->
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+	<title>Hello, world!</title>
+</head>
+<body>
+	<p>userId: <span id="userId"></span></p>
+	<p>displayName: <span id="displayName"></span></p>
+	<p>pictureUrl: <span id="pictureUrl"></span></p>
+	<p>statusMessage: <span id="statusMessage"></span></p>
+</body>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script>
+	liff.init({
+		liffId: "1657653017-kR69bd5m" 
+	}).then(()=>{
+		if (!liff.isLoggedIn()) {
+			liff.login();
+		}
+		liff.getProfile().then(function (profile) {
+			document.getElementById("userId").innerHTML = profile.userId;
+			document.getElementById("displayName").innerHTML = profile.displayName;
+			document.getElementById("pictureUrl").innerHTML = profile.pictureUrl;
+			document.getElementById("statusMessage").innerHTML = profile.statusMessage;
+		})
+	}).catch(error=>{
+		console.log('error', error);
+	})
+</script>
