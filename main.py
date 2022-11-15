@@ -28,20 +28,22 @@ def callback():
 
 	return 'OK'
 
+
 @app.route("/nav")
 def nav():
-    return render_template("nav.html")
+	liff_id = config["Liff ID"]
+	return render_template("nav.html", liff_id=liff_id)
 
 
 # see https://xiaosean.github.io/chatbot/2018-04-19-LineChatbot_usage/
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    # get user id when reply
-    user_id = event.source.user_id
-    print("user_id =", user_id)
-    msg = TextSendMessage(text=event.message.text)
-    line_bot_api.reply_message(event.reply_token, msg)
+	# get user id when reply
+	user_id = event.source.user_id
+	print("user_id =", user_id)
+	msg = TextSendMessage(text=f'https://liff.line.me/{config["Liff ID"]}')
+	line_bot_api.reply_message(event.reply_token, msg)
     
     
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080, debug=True)
+  	app.run(host='0.0.0.0', port=8080, debug=True)

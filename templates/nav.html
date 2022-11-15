@@ -22,8 +22,9 @@
 </body>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script>
+	var liff_id = '{{ liff_id }}';
 	liff.init({
-		liffId: "1657653017-kR69bd5m" 
+		liffId: liff_id 
 	}).then(()=>{
 		if (!liff.isLoggedIn()) {
 			liff.login();
