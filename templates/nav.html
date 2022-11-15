@@ -12,15 +12,68 @@
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-	<title>Hello, world!</title>
+	<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+	<title>medicine investigate form</title>
 </head>
 <body>
-	<p>userId: <span id="userId"></span></p>
-	<p>displayName: <span id="displayName"></span></p>
-	<p>pictureUrl: <span id="pictureUrl"></span></p>
-	<p>statusMessage: <span id="statusMessage"></span></p>
+	<nav class="navbar navbar-inverse">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a class="navbar-brand">medicine investigate form</a>
+			</div>
+		</div>
+	</nav>
+	<div class="container">
+		<ul class="nav nav-tabs">
+			<li class="active"><a href="#Profile">Profile</a></li>
+			<li><a href="#temp">temp</a></li>
+		</ul>
+		<div class="tab-content">
+			<div id="Profile" class="tab-pane fade in active">
+				<h3>Profile</h3>
+				<div class="row">
+					<div class="col-xs-12">
+						<table class="table table-striped">
+							<thead>
+								<tr>
+									<th scope="col">#</th>
+									<th scope="col">Property</th>
+									<th scope="col">Content</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<th scope="row">1</th>
+									<td>userId</td>
+									<td><span id="userId"></span></td>
+								</tr>
+								<tr>
+									<th scope="row">2</th>
+									<td>displayName</td>
+									<td><span id="displayName"></span></td>
+								</tr>
+								<tr>
+									<th scope="row">3</th>
+									<td>pictureUrl</td>
+									<td><span id="pictureUrl"></span></td>
+								</tr>
+								<tr>
+									<th scope="row">4</th>
+									<td>statusMessage</td>
+									<td><span id="statusMessage"></span></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<div id="temp" class="tab-pane fade">
+				<h3>temp</h3>
+			</div>
+		</div>
+	</div>
 </body>
-<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script>
 	var liff_id = '{{ liff_id }}';
 	liff.init({
