@@ -8,11 +8,11 @@
 
 3. 看這個[影片](https://www.youtube.com/watch?v=tsvIqoDxUJo&list=PLHOrrQ0BGMkRJDluig6dYVmNVgyHHEtCG&index=4)申請一個bot，之後在裡面找到Channel access token和Channel secret
 
-4. 把上述兩個東西複製貼上到setting/key.json，格式如下(Liff ID等一下會說明)
+4. 把上述兩個東西複製貼上到```setting/key.json```，格式如下(Liff ID等一下會說明)
 
     ![](https://i.imgur.com/fPe1elS.png)
 
-5. 用這個[教學](http://white5168.blogspot.com/2020/03/python-replit-line-bot-1.html#.Y2Dsx3ZBxPY)把line bot部署在repl.it上面，然後當你成功跑出結果的時候，你應該會看到這個畫面
+5. 用這個[教學](http://white5168.blogspot.com/2020/03/python-replit-line-bot-1.html#.Y2Dsx3ZBxPY)把line bot部署在[repl.it](https://replit.com/~)上面，然後當你成功跑出結果的時候，你應該會看到這個畫面
 
     ![](https://i.imgur.com/DBL8cJU.png)
 
