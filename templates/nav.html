@@ -79,11 +79,11 @@
 				<form class="form-horizontal" method="post" id="form">
 					<div class="form-group" id="routine_form">
 						<label class="control-label col-sm-1">起始時間</label>
-						<div class="col-sm-2">
+						<div class="col-sm-3">
 							<input type="datetime-local" class="form-control" name="begindate" id="begindate">
 						</div>
 						<label class="control-label col-sm-1">結束時間</label>
-						<div class="col-sm-2">
+						<div class="col-sm-3">
 							<input type="datetime-local" class="form-control" name="enddate" id="enddate">
 						</div>
 						<table class="table table-striped">
@@ -137,7 +137,7 @@
 							data: JSON.stringify(input_value),
 							async: false,
 							success: function (data) {
-								console.log("success");
+                				alert(data.msg);
 							},
 							error: function (jqxhr, textStatus, errorThrown) {
 								alert("error: " + textStatus);
