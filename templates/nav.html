@@ -9,9 +9,9 @@
 	<!-- Bootstrap CSS -->
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
 	<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 	<title>medicine investigate form</title>
 </head>
@@ -26,10 +26,13 @@
 	<div class="container">
 		<ul class="nav nav-tabs" id="myTab" role="tablist">
 			<li class="nav-item active">
-				<a class="nav-link active" id="home-tab" data-toggle="tab" href="#Profile" role="tab" aria-controls="home" aria-selected="true">Profile</a>
+				<a class="nav-link active" id="home-tab" data-toggle="tab" href="#Profile" role="tab" aria-controls="home" aria-selected="true">個人資料</a>
 			</li>
 			<li class="nav-item">
-				<a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact1" role="tab" aria-controls="contact" aria-selected="false">Contact</a>
+				<a class="nav-link" id="Form-tab" data-toggle="tab" href="#Form" role="tab" aria-controls="Form" aria-selected="false">填寫表單</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" id="Adjust-tab" data-toggle="tab" href="#Adjust" role="tab" aria-controls="Adjust" aria-selected="false">調整時間</a>
 			</li>
 		</ul>
 		<div class="tab-content" id="myTabContent">
@@ -71,8 +74,25 @@
 					</div>
 				</div>
 			</div>
-			<div class="tab-pane fade" id="contact1" role="tabpanel" aria-labelledby="contact-tab">
+			<div class="tab-pane fade" id="Form" role="tabpanel" aria-labelledby="Form-tab">
 				<h3>Form</h3>
+				<form class="form-horizontal" action="/action_page.php" method="post" id="search_form">
+					<div class="form-group">
+						<label class="control-label col-sm-1">起始時間</label>
+						<div class="col-sm-2">
+							<input type="datetime-local" class="form-control" name="begindate" id="begindate">
+						</div>
+						<label class="control-label col-sm-1">結束時間</label>
+						<div class="col-sm-2">
+							<input type="datetime-local" class="form-control" name="enddate" id="enddate">
+						</div>
+					</div>
+				</form>
+				
+				<input type="time" id="timepicker1" name="appt" value="00:00" required>
+			</div>
+			<div class="tab-pane fade" id="Adjust" role="tabpanel" aria-labelledby="Adjust-tab">
+				<h3>Adjust</h3>
 			</div>
 		</div>
 	</div>
