@@ -49,6 +49,14 @@ def fill_form():
 	print(form)
 	'''
 	implement insert time table sql here
+	form structure:
+	{
+		"begindate"		: "<string>",
+		"enddate"		: "<string>",
+		"timepicker0"	: "<string>",
+		"timepicker1"	: "<string>",
+		...
+	}
  	'''
     
 	response = jsonify({'msg': 'fill form successfully'})
