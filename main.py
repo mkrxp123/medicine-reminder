@@ -1,7 +1,7 @@
 from linebot import LineBotApi, WebhookHandler
 from linebot.models import TextSendMessage, ImageSendMessage, MessageEvent, TextMessage
 from linebot.exceptions import LineBotApiError, InvalidSignatureError
-from flask import Flask, request, abort, render_template
+from flask import Flask, request, abort, render_template, redirect, url_for, jsonify
 from utility import getKey, timetable
 import re
 
@@ -29,10 +29,32 @@ def callback():
 	return 'OK'
 
 
+@app.route("/")
+def home():
+	'''
+	redirect user to nav.html
+	'''
+	return redirect(url_for('nav'))
+
+
 @app.route("/nav")
 def nav():
 	liff_id = config["Liff ID"]
 	return render_template("nav.html", liff_id=liff_id)
+
+
+@app.route("/fill-form", methods=["POST"])
+def fill_form():
+	form = request.json
+	print(form)
+	'''
+	implement insert time table sql here
+ 	'''
+    
+	response = jsonify({'msg': 'fill form successfully'})
+	response.headers.add('Access-Control-Allow-Origin', '*')
+	response.status_code = 200
+	return response
 
 
 # see https://xiaosean.github.io/chatbot/2018-04-19-LineChatbot_usage/
@@ -46,4 +68,4 @@ def handle_message(event):
     
     
 if __name__ == '__main__':
-  	app.run(host='0.0.0.0', port=8080, debug=True)
+	app.run(host='0.0.0.0', port=8080, debug=True)

@@ -76,7 +76,7 @@
 			</div>
 			<div class="tab-pane fade" id="Form" role="tabpanel" aria-labelledby="Form-tab">
 				<h3>Form</h3>
-				<form class="form-horizontal" action="/action_page.php" method="post" id="form">
+				<form class="form-horizontal" method="post" id="form">
 					<div class="form-group" id="routine_form">
 						<label class="control-label col-sm-1">起始時間</label>
 						<div class="col-sm-2">
@@ -96,18 +96,18 @@
 							<tbody id="routine_table">
 							</tbody>
 						</table>
-					</div>
-					<div class="form-group">
-						<button type="button" style="margin-left: 18px;" class="btn btn-secondary" onclick="addRoutine()">增加行程</button>
-						<button type="button" style="margin-left: 18px;" class="btn btn-warning" onclick="delRoutine()">減少行程</button>
-						<button type="button" style="margin-left: 18px;" class="btn btn-danger" onclick="resetRoutine()">重置</button>
-						<button type="submit" style="margin-left: 18px;" class="btn btn-primary">送出</button>
+						<div class="form-group">
+							<button type="button" style="margin-left: 18px;" class="btn btn-secondary" onclick="addRoutine()">增加行程</button>
+							<button type="button" style="margin-left: 18px;" class="btn btn-warning" onclick="delRoutine()">減少行程</button>
+							<button type="button" style="margin-left: 18px;" class="btn btn-danger" onclick="resetRoutine()">重置</button>
+							<button type="submit" style="margin-left: 18px;" class="btn btn-primary">送出</button>
+						</div>
 					</div>
 				</form>
 				<script type="text/javascript">
 					var count = 0, init_block = $("#routine_form").prop('outerHTML');
 					function addRoutine(){
-						var time_input = `<input type="time" id="timepicker${count}" value="00:00">`;
+						var time_input = `<input type="time" name="timepicker${count}" value="00:00">`;
 						$("#routine_table").append(`<tr id=row${count}><th scope="row">${count}</th><td>${time_input}</td></tr>`);
 						count += 1;
 					}
@@ -121,6 +121,30 @@
 						$("#routine_table").html("");
 						count = 0;
 					}
+					$('form.form-horizontal').on('submit', function () {
+						var f = $(this), m= f.attr('method'), input_value = {};
+						f.find('[name]').each(function (index, value) {
+							var inputs = $(this),
+							name = inputs.attr('name'),
+							value = inputs.val();
+							input_value[name] = value;
+						});
+						console.log(input_value);
+						$.ajax({
+							url: "/fill-form",
+							method: m,
+              				contentType: "application/json",
+							data: JSON.stringify(input_value),
+							async: false,
+							success: function (data) {
+								console.log("success");
+							},
+							error: function (jqxhr, textStatus, errorThrown) {
+								alert("error: " + textStatus);
+							}
+						})
+						return false;
+					});
 				</script>
 			</div>
 			<div class="tab-pane fade" id="Adjust" role="tabpanel" aria-labelledby="Adjust-tab">
