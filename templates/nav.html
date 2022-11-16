@@ -76,8 +76,8 @@
 			</div>
 			<div class="tab-pane fade" id="Form" role="tabpanel" aria-labelledby="Form-tab">
 				<h3>Form</h3>
-				<form class="form-horizontal" action="/action_page.php" method="post" id="search_form">
-					<div class="form-group">
+				<form class="form-horizontal" action="/action_page.php" method="post" id="form">
+					<div class="form-group" id="routine_form">
 						<label class="control-label col-sm-1">起始時間</label>
 						<div class="col-sm-2">
 							<input type="datetime-local" class="form-control" name="begindate" id="begindate">
@@ -86,10 +86,42 @@
 						<div class="col-sm-2">
 							<input type="datetime-local" class="form-control" name="enddate" id="enddate">
 						</div>
+						<table class="table table-striped">
+							<thead>
+								<tr>
+									<th scope="col">#</th>
+									<th scope="col">行程</th>
+								</tr>
+							</thead>
+							<tbody id="routine_table">
+							</tbody>
+						</table>
+					</div>
+					<div class="form-group">
+						<button type="button" style="margin-left: 18px;" class="btn btn-secondary" onclick="addRoutine()">增加每日提醒</button>
+						<button type="button" style="margin-left: 18px;" class="btn btn-warning" onclick="delRoutine()">減少每日提醒</button>
+						<button type="button" style="margin-left: 18px;" class="btn btn-danger" onclick="resetRoutine()">重置</button>
+						<button type="submit" style="margin-left: 18px;" class="btn btn-primary">送出</button>
 					</div>
 				</form>
-				
-				<input type="time" id="timepicker1" name="appt" value="00:00" required>
+				<script type="text/javascript">
+					var count = 0, init_block = $("#routine_form").prop('outerHTML');
+					function addRoutine(){
+						var time_input = `<input type="time" id="timepicker${count}" value="00:00">`;
+						$("#routine_table").append(`<tr id=row${count}><th scope="row">${count}</th><td>${time_input}</td></tr>`);
+						count += 1;
+					}
+					function delRoutine(){
+						if(count > 0){
+							$(`#row${count-1}`).remove();
+							count -= 1;
+						}
+					}
+					function resetRoutine(){
+						$("#routine_table").html("");
+						count = 1;
+					}
+				</script>
 			</div>
 			<div class="tab-pane fade" id="Adjust" role="tabpanel" aria-labelledby="Adjust-tab">
 				<h3>Adjust</h3>
