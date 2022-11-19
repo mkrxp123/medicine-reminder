@@ -26,5 +26,5 @@
 
 ### 加 richmenu
 
-1. 跑 python3 rich_menu.py, 會先噴一行{"richMenuId":xxxxxxxxx}再噴一些 error，噴 error 因為還沒設"richMenuId"，所以先把 "richMenuId":xxxxxxxxx 這行加進/setting/key.json
-2. 再跑一次 python3 rich_menu.py
+1. 跑 `python3 rich_menu.py`, 會先噴一行`{"richMenuId":xxxxxxxxx}`再噴一些 error，噴 error 因為還沒設"richMenuId"，所以先把 "richMenuId":xxxxxxxxx 這行加進`/setting/key.json`
+2. 再跑一次 `python3 rich_menu.py`
