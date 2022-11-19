@@ -1,3 +1,8 @@
 __pycache__
+venv
 *.db
 *key*
+*.lock
+*.toml
+*.nix
+.*
