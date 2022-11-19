@@ -28,3 +28,24 @@
 
 1. 跑 `python3 rich_menu.py`, 會先噴一行`{"richMenuId":xxxxxxxxx}`再噴一些 error，噴 error 因為還沒設"richMenuId"，所以先把 "richMenuId":xxxxxxxxx 這行加進`/setting/key.json`
 2. 再跑一次 `python3 rich_menu.py`
+
+### 使用pgAdmin操作資料庫
+
+1. 安裝後在左上角的server點右鍵選擇"RegisterServer"
+
+   ![image](https://user-images.githubusercontent.com/46371116/202854145-dc647d2f-188a-4b1a-a6a3-6fe10e1b01f7.png)
+   
+2. Server名稱可以自訂不影響
+
+   ![image](https://user-images.githubusercontent.com/46371116/202854202-511f6610-4273-4175-af89-cdfff4ce6b2b.png)
+
+3. Hostname填入 "database-1.cbixtilkjhc6.ap-northeast-1.rds.amazonaws.com"
+4. port 5432
+5. password 12345678
+6. 點save連接
+7. 在server下面的schema裡可以找到所有的schema和table
+
+   ![image](https://user-images.githubusercontent.com/46371116/202854380-19156724-a7fd-4957-b234-c0caad609d74.png)
+
+8.目前預計在Testing Database裡的Public schema測試
+
