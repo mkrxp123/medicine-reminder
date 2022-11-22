@@ -129,7 +129,7 @@
 							value = inputs.val();
 							input_value[name] = value;
 						});
-						console.log(input_value);
+						input_value['user_id'] = user_id;
 						$.ajax({
 							url: "/fill-form",
 							method: m,
@@ -155,6 +155,7 @@
 </body>
 <script>
 	var liff_id = '{{ liff_id }}';
+	var user_id;
 	liff.init({
 		liffId: liff_id 
 	}).then(()=>{
@@ -162,6 +163,7 @@
 			liff.login();
 		}
 		liff.getProfile().then(function (profile) {
+			user_id = profile.userId;
 			document.getElementById("userId").innerHTML = profile.userId;
 			document.getElementById("displayName").innerHTML = profile.displayName;
 			document.getElementById("pictureUrl").innerHTML = profile.pictureUrl;
