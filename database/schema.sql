@@ -9,7 +9,7 @@ CREATE TABLE
     if NOT EXISTS public."Reminders"(
         "Title" character varying(50) COLLATE pg_catalog."default" NOT NULL,
         "ReminderID" character(4) COLLATE pg_catalog."default" NOT NULL,
-        "UserName" character(50) COLLATE pg_catalog."default" NOT NULL,
+        "UserName" character varying(50) COLLATE pg_catalog."default" NOT NULL,
         "Prescription" bytea,
         "Picture" bytea,
         "TotalTimes" integer NOT NULL,
