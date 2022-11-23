@@ -8,11 +8,29 @@
 
 	<!-- Bootstrap CSS -->
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 
 	<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+	<link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.css' rel='stylesheet' />
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.js'></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+          initialView: 'dayGridMonth',
+          contentHeight: 'auto',
+          editable: true,
+          dateClick: function(info) {
+    alert(info);
+            // console.log(info.dateStr);
+  }
+        });
+        calendar.render();
+      });
+    </script>
 	<title>medicine investigate form</title>
 </head>
 <body>
@@ -25,18 +43,21 @@
 	</nav>
 	<div class="container">
 		<ul class="nav nav-tabs" id="myTab" role="tablist">
-			<li class="nav-item active">
-				<a class="nav-link active" id="home-tab" data-toggle="tab" href="#Profile" role="tab" aria-controls="home" aria-selected="true">個人資料</a>
+			<li class="nav-item" role="presentation">
+        		<button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#Profile" type="button" role="tab" aria-controls="home" aria-selected="true">個人資料</button>
 			</li>
-			<li class="nav-item">
-				<a class="nav-link" id="Form-tab" data-toggle="tab" href="#Form" role="tab" aria-controls="Form" aria-selected="false">填寫表單</a>
+			<li class="nav-item" role="presentation">
+        		<button class="nav-link" id="Form-tab" data-bs-toggle="tab" data-bs-target="#Form" type="button" role="tab" aria-controls="Form" aria-selected="false">填寫表單</button>
 			</li>
-			<li class="nav-item">
-				<a class="nav-link" id="Adjust-tab" data-toggle="tab" href="#Adjust" role="tab" aria-controls="Adjust" aria-selected="false">調整時間</a>
-			</li>
+			<li class="nav-item" role="presentation">
+        		<button class="nav-link" id="Adjust-tab" data-bs-toggle="tab" data-bs-target="#Adjust" type="button" role="tab" aria-controls="Adjust" aria-selected="false">調整時間</button>
+      		</li>
+			<li class="nav-item" role="presentation">
+        		<button class="nav-link" id="Calendar-tab" data-bs-toggle="tab" data-bs-target="#Calendar" type="button" role="tab" aria-controls="Calendar" aria-selected="false">日曆</button>
+      		</li>
 		</ul>
 		<div class="tab-content" id="myTabContent">
-			<div class="tab-pane fade in active" id="Profile" role="tabpanel" aria-labelledby="home-tab">
+			<div class="tab-pane fade show active" id="Profile" role="tabpanel" aria-labelledby="home-tab">
 				<h3>Profile</h3>
 				<div class="row">
 					<div class="col-xs-12">
@@ -149,6 +170,9 @@
 			</div>
 			<div class="tab-pane fade" id="Adjust" role="tabpanel" aria-labelledby="Adjust-tab">
 				<h3>Adjust</h3>
+			</div>
+			<div class="tab-pane fade in active" id="Calendar" role="tabpanel" aria-labelledby="Calendar-tab">
+				<div id="calendar"></div>
 			</div>
 		</div>
 	</div>
