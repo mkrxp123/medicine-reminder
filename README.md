@@ -16,11 +16,12 @@
 
    ![](https://i.imgur.com/DBL8cJU.png)
 
-6. 把上述畫面中的網址複製，並且另外去[line developer](https://developers.line.biz/zh-hant/)申請 Line Login，記得把 Scope 中 openid 和 profile 打開，然後在申請完成之後點擊 LIFF，點選 ADD(如下圖)，把複製的網站後面加個`/nav`，舉例`https://rosyfirebrickoperatingenvironment.mkrxp123.repl.co/nav`
+6. 把上述畫面中的網址複製，並且另外去[line developer](https://developers.line.biz/zh-hant/)申請 Line Login，記得把 Scope 中 openid 和 profile 打開，然後在申請完成之後點擊 LIFF，點選 ADD(如下圖)，把複製的網站後面加個`/nav`，舉例`https://rosyfirebrickoperatingenvironment.mkrxp123.repl.co/nav`，記得設定完之後在上方圖示，找到紅色框起來的部分設定為publish，不然只有developer自己能用而已
 
    ![](https://i.imgur.com/PL2cEt5.png)
+   ![](https://i.imgur.com/Cyhkn5I.png)
 
-7. 你之後應該會看到這東西(size 看你想怎麼調整)，然後把 LIFF ID 複製到上面`key.json`裡面
+8. 你之後應該會看到這東西(size 看你想怎麼調整)，然後把 LIFF ID 複製到上面`key.json`裡面
 
    ![](https://i.imgur.com/YzFhYFM.png)
 

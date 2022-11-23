@@ -6,7 +6,7 @@ from utility import getKey, ajaxResponse, timetable
 from rich_menu import rich_menu
 import re
 
-config = getKey()
+config = getKey() 
 # uncomment after you finish database connection
 # reminder_db = timetable()
 
@@ -19,14 +19,14 @@ app = Flask(__name__)
 @app.route("/callback", methods=['POST'])
 def callback():
     signature = request.headers['X-Line-Signature']
-    
+
     body = request.get_data(as_text=True)
     app.logger.info("Request body: " + body)
     try:
         handler.handle(body, signature)
     except InvalidSignatureError:
         abort(400)
-    
+
     return 'OK'
 
 
@@ -60,7 +60,7 @@ def fill_form():
         ...
     }
     '''
-    
+
     return ajaxResponse({'msg': 'fill form successfully'})
 
 
@@ -75,4 +75,4 @@ def handle_message(event):
 
 
 if __name__ == '__main__':
-  app.run(host='0.0.0.0', port=8080, debug=True)
+    app.run(host='0.0.0.0', port=8080, debug=True)
