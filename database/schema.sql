@@ -11,7 +11,6 @@ CREATE TABLE
     	"ReminderID" integer NOT NULL,
     	"UserName" character varying(50) COLLATE pg_catalog."default" NOT NULL,
         "Picture" bytea,
-        "TotalTimes" integer NOT NULL,
         "Hospital" character varying(50) COLLATE pg_catalog."default",
         "GroupID" character(33) COLLATE pg_catalog."default" NOT NULL,
         "GetMedicine" boolean NOT NULL,
