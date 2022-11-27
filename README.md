@@ -50,7 +50,7 @@
 
 8.目前預計在Testing Database裡的Public schema測試
 
-### 關於database的操作
+### 關於database的實作
 
 目前實現將提醒結束日期、UserID、以及提醒時間存入database中
 其他需要的資料為：
