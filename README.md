@@ -50,3 +50,14 @@
 
 8.目前預計在Testing Database裡的Public schema測試
 
+### 關於database的操作
+
+目前實現將提醒結束日期、UserID、以及提醒時間存入database中
+其他需要的資料為：
+1. UserName 用戶名 
+2. GroupID 群組ID 
+3. GroupName 群組名 
+4. Title 提醒標題 
+5. Picture 照片 
+6. Hospital 醫院名
+7. GetMedicine 是否為吃藥提醒
