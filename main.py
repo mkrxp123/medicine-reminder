@@ -5,6 +5,8 @@ from flask import Flask, request, abort, render_template, redirect, url_for, jso
 from utility import getKey, ajaxResponse, timetable
 from rich_menu import rich_menu
 import re
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.sql import select, and_
 
 config = getKey() 
 # uncomment after you finish database connection
@@ -13,6 +15,7 @@ config = getKey()
 line_bot_api = LineBotApi(config["Channel access token"])
 handler = WebhookHandler(config["Channel secret"])
 app = Flask(__name__)
+db, Users, RemindTimes, Reminders, RemindGroups = setup()
 
 
 # 接收 LINE 的資訊
@@ -48,6 +51,47 @@ def nav():
 def fill_form():
     form = request.json
     print(form)
+    
+    # 看有幾個timepicker
+    num = len(form.keys())
+    num -= 3
+
+    # insert data into database based on data given
+
+    # insert UserID and UserName into Users
+    select_statement = Users.select().where(Users.c.LineID == form['user_id'])
+    check_exist = db.execute(select_statement).fetchall()
+    if len(check_exist) == 0:
+        insert_statement = Users.insert().values(LineID=form['user_id'],
+                                                 UserName='test6')
+        db.execute(insert_statement)
+
+    # insert general info into Reminders
+    insert_statement = Reminders.insert().values(Title='title_test6',
+                                                 UserName='test6',
+                                                 Picture=None,
+                                                 Hospital='hospital_test6',
+                                                 GroupID='Group_test6',
+                                                 GetMedicine=True)
+    db.execute(insert_statement)
+
+    # # obtain attributes(mainly ReminderID) from the action above
+    select_statement = Reminders.select().where(
+        and_(Reminders.c.Title == 'title_test6',
+             Reminders.c.UserName == 'test6'))
+    result_set = db.execute(select_statement).fetchall()
+    Current_Reminder = []
+    for row in result_set:
+        Current_Reminder.append(dict(row))
+
+    # # insert into RemindTimes based on enddate, timpicker
+    for x in range(num):
+        insert_statement = RemindTimes.insert().values(
+            ReminderID=Current_Reminder[0]['ReminderID'],
+            RemindTime=form['timepicker' + str(x)],
+            RemindDate=form['enddate'])
+        db.execute(insert_statement)
+        
     '''
     implement insert time table sql here
     form structure:
