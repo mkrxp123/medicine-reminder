@@ -2,13 +2,13 @@ from linebot import LineBotApi, WebhookHandler
 from linebot.models import TextSendMessage, ImageSendMessage, MessageEvent, TextMessage
 from linebot.exceptions import LineBotApiError, InvalidSignatureError
 from flask import Flask, request, abort, render_template, redirect, url_for, jsonify
-from utility import getKey, ajaxResponse, timetable
+from utility import getKey, ajaxResponse, timetable, setup
 from rich_menu import rich_menu
 import re
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import select, and_
 
-config = getKey() 
+config = getKey()
 # uncomment after you finish database connection
 # reminder_db = timetable()
 
@@ -51,11 +51,12 @@ def nav():
 def fill_form():
     form = request.json
     print(form)
-    
+
     # 看有幾個timepicker
     num = len(form.keys())
     num -= 3
-
+    num -= 1
+    # print("NUM: ", num)
     # insert data into database based on data given
 
     # insert UserID and UserName into Users
@@ -63,7 +64,7 @@ def fill_form():
     check_exist = db.execute(select_statement).fetchall()
     if len(check_exist) == 0:
         insert_statement = Users.insert().values(LineID=form['user_id'],
-                                                 UserName='test6')
+                                                 UserName=form['user_id'])
         db.execute(insert_statement)
 
     # insert general info into Reminders
@@ -91,7 +92,7 @@ def fill_form():
             RemindTime=form['timepicker' + str(x)],
             RemindDate=form['enddate'])
         db.execute(insert_statement)
-        
+
     '''
     implement insert time table sql here
     form structure:
