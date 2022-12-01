@@ -109,6 +109,18 @@ def fill_form():
     return ajaxResponse({'msg': 'fill form successfully'})
 
 
+@app.route("/search-routine", methods=["POST"])
+def search_routine():
+    '''
+        tell html guys what to chage if you need extra input
+        implement search routine function here
+        then we will handle ajax things
+    '''
+    user_id = request.form["user_id"]
+    
+    return ajaxResponse({"foo": "bar"})
+
+
 # see https://xiaosean.github.io/chatbot/2018-04-19-LineChatbot_usage/
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
