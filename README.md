@@ -65,7 +65,7 @@
 
 ### 前端加的小東西
 
-回傳的 form 裡有表示是吃藥還是領藥的提醒，吃藥的話會是'med': 'take'，領藥的話會是'med': 'pick_up'
+回傳的 form 裡有表示是吃藥還是領藥的提醒，吃藥的話會是`'med': 'take'`，領藥的話會是`'med': 'pick_up'`
 
 ```
 {'med': 'take', 'begindate': '2022-12-02T01:22', 'enddate': '2022-12-02T01:23', 'timepicker0': '00:02', 'user_id': 'U1e53f9b4b5e63bea01f5c192f45929cd'}

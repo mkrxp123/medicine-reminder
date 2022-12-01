@@ -24,9 +24,9 @@
           contentHeight: 'auto',
           editable: true,
           dateClick: function(info) {
-    alert(info);
-            // console.log(info.dateStr);
-  }
+				alert(info);
+						// console.log(info.dateStr);
+			}
         });
         calendar.render();
       });
@@ -99,12 +99,12 @@
 				<h3>Form</h3>
 				<form class="form-horizontal" method="post" id="form">
 					<div>
-            <input type="radio" id="take" name="med" value="take" checked>
-            <label for="take">吃藥</label>
-            <input type="radio" id="pick_up" name="med" value="pick_up">
-            <label for="pick_up">領藥</label>
-          </div>
-          <div class="form-group" id="routine_form">
+						<input type="radio" id="take" name="med" value="take" checked>
+						<label for="take">吃藥</label>
+						<input type="radio" id="pick_up" name="med" value="pick_up">
+						<label for="pick_up">領藥</label>
+					</div>
+          			<div class="form-group" id="routine_form">
 						<label class="control-label col-sm-1">起始時間</label>
 						<div class="col-sm-3">
 							<input type="datetime-local" class="form-control" name="begindate" id="begindate">
@@ -149,16 +149,13 @@
 						count = 0;
 					}
 					$('form.form-horizontal').on('submit', function () {
-            
 						var f = $(this), m= f.attr('method'), input_value = {};
 						f.find('[name]').each(function (index, value) {
 							var inputs = $(this),
 							name = inputs.attr('name');
 							if(name == "med"){
-								if(inputs.attr('checked')){
 									value = inputs.val();
-									input_value[name] = value;
-								}
+									input_value[name] = $("#form input[type='radio']:checked").val();
 							}
 							else{
 								value = inputs.val();
