@@ -72,12 +72,12 @@ def fill_form():
     # insert data into database based on data given
 
     # insert UserID and UserName into Users
-    select_statement = database.Users.select().where(database.Users.c.LineID == form['user_id'])
-    check_exist = database.db.execute(select_statement).fetchall()
-    if len(check_exist) == 0:
-        insert_statement = database.Users.insert().values(LineID=form['user_id'],
-                                                 UserName='test6')
-        database.db.execute(insert_statement)
+    # select_statement = database.Users.select().where(database.Users.c.LineID == form['user_id'])
+    # check_exist = database.db.execute(select_statement).fetchall()
+    # if len(check_exist) == 0:
+    #     insert_statement = database.Users.insert().values(LineID=form['user_id'],
+    #                                              UserName='test6')
+    #    database.db.execute(insert_statement)
 
 
     # insert to group
