@@ -15,7 +15,7 @@ config = getKey()
 line_bot_api = LineBotApi(config["Channel access token"])
 handler = WebhookHandler(config["Channel secret"])
 app = Flask(__name__)
-db, Users, RemindTimes, Reminders, RemindGroups = setup()
+database = Database()
 
 
 # 接收 LINE 的資訊
