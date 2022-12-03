@@ -98,10 +98,6 @@ def search_routine():
         then we will handle ajax things
     '''
     user_id = request.form["user_id"]
-    group_id = request.form["group_id"]
-    title = request.form["title"]
-    hospital = request.form["hospital"] # not necessary
-    picture = request.form["picture"] # not necessary
     
     return ajaxResponse({"foo": "bar"})
 
