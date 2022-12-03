@@ -112,24 +112,23 @@ def handle_message(event):
     # get user id when reply
     user_id = event.source.user_id
     print("user_id =", user_id)
-    
     msg = TextSendMessage(text=f'https://liff.line.me/{config["Liff ID"]}')
     line_bot_api.reply_message(event.reply_token,msg)
 
 @handler.add(PostbackEvent)
-def handle_postback(event): #press the check button
-  user_id = event.source.user_id
+def handle_postback(event): #吃藥提醒按鈕回傳值
   if event.postback.data == 'ateMedicine':
     msg = TextSendMessage(text="您已服用藥物!\n又是個健康的一天:D")
     line_bot_api.reply_message(event.reply_token,msg)
   else:
-     schedule.every(10).minutes.until(timedelta(minutes=2)).do(pushremindMsg(user_id))     
+     schedule.every(10).seconds.until(timedelta(minutes=2)).do(pushremindMsg())     
 
 if __name__ == '__main__':
     postgres_manager = PostgresBaseManager()
     postgres_manager.runServerPostgresdb()
     remindList = postgres_manager.checkRemindTime() #確認當前時間的提醒數量
-    pushremindMsg() #傳送提醒
-    app.run(host='0.0.0.0', port=8080, debug=True) #若debug設為true會跑出兩次提醒，改為debug=False即可
+    pushremindMsg() #傳送吃藥提醒
+    app.debug=True
+    app.run(host='0.0.0.0', port=8080, use_reloader=False)
     schedule.run_pending()
     time.sleep(1)
