@@ -3,6 +3,9 @@ from flask import jsonify
 from sqlalchemy import create_engine
 from sqlalchemy import Table, Column, String, MetaData, Integer, LargeBinary, VARCHAR, DateTime, Time, Date, Boolean
 sqlite3.enable_callback_tracebacks(True)
+from connection import *
+from linebot import LineBotApi
+from linebot.models import TextSendMessage, ImageSendMessage, MessageEvent, TextMessage, TemplateSendMessage, ButtonsTemplate, PostbackAction, MessageTemplateAction, PostbackEvent
 
 class Database:
 
@@ -100,3 +103,21 @@ class timetable:
             self.db.cursor().executescript(f.read())
         self.db.cursor().execute("PRAGMA foreign_keys=ON")
         self.db.commit()
+
+def pushremindMsg():
+  config = getKey()
+  line_bot_api = LineBotApi(config["Channel access token"])
+  postgres_manager = PostgresBaseManager()
+  remindList = postgres_manager.checkRemindTime()
+  # send remind message
+  if len(remindList):
+    while(len(remindList)):
+      msg = postgres_manager.getPostgresdbData()
+      reTitle = remindList[0][1]
+      reLineID = remindList[0][2] #要傳送提醒的使用者Line ID
+      buttons_template = ButtonsTemplate(
+      title=reTitle, thumbnail_image_url='https://medlineplus.gov/images/Medicines.jpg', text=msg, actions=[PostbackAction(label='確認', data='ateMedicine', display_text='已吃藥!')])
+      template_message = TemplateSendMessage(alt_text='吃藥提醒', template=buttons_template)
+      line_bot_api.push_message(reLineID, template_message)
+      remindList.pop(0)
+  return True

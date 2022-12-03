@@ -1,12 +1,16 @@
 from linebot import LineBotApi, WebhookHandler
-from linebot.models import TextSendMessage, ImageSendMessage, MessageEvent, TextMessage
+from linebot.models import TextSendMessage, ImageSendMessage, MessageEvent, TextMessage, TemplateSendMessage, ButtonsTemplate, PostbackAction, MessageTemplateAction, PostbackEvent
 from linebot.exceptions import LineBotApiError, InvalidSignatureError
 from flask import Flask, request, abort, render_template, redirect, url_for, jsonify
-from utility import getKey, ajaxResponse, timetable, Database
+from utility import getKey, ajaxResponse, timetable, Database, pushremindMsg
 from rich_menu import rich_menu
 import re
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import select, and_
+from connection import *
+import schedule
+import time
+from datetime import datetime, timezone, timedelta
 
 config = getKey()
 # uncomment after you finish database connection
@@ -108,9 +112,24 @@ def handle_message(event):
     # get user id when reply
     user_id = event.source.user_id
     print("user_id =", user_id)
+    
     msg = TextSendMessage(text=f'https://liff.line.me/{config["Liff ID"]}')
-    line_bot_api.reply_message(event.reply_token, msg)
+    line_bot_api.reply_message(event.reply_token,msg)
 
+@handler.add(PostbackEvent)
+def handle_postback(event): #press the check button
+  user_id = event.source.user_id
+  if event.postback.data == 'ateMedicine':
+    msg = TextSendMessage(text="您已服用藥物!\n又是個健康的一天:D")
+    line_bot_api.reply_message(event.reply_token,msg)
+  else:
+     schedule.every(10).minutes.until(timedelta(minutes=2)).do(pushremindMsg(user_id))     
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080, debug=True)
+    postgres_manager = PostgresBaseManager()
+    postgres_manager.runServerPostgresdb()
+    remindList = postgres_manager.checkRemindTime() #確認當前時間的提醒數量
+    pushremindMsg() #傳送提醒
+    app.run(host='0.0.0.0', port=8080, debug=True) #若debug設為true會跑出兩次提醒，改為debug=False即可
+    schedule.run_pending()
+    time.sleep(1)
