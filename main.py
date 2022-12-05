@@ -69,9 +69,9 @@ def fill_form():
     '''
 
     # 看有幾個timepicker
-    num = len(form.keys())
-    num -= 3
-    num -= 1
+    #num = len(form.keys())
+    #num -= 3
+    #num -= 1
     # print("NUM: ", num)
     # insert data into database based on data given
 
@@ -87,9 +87,12 @@ def fill_form():
     # insert to group
     #database.InsertGroup('this parameter has 33 characters.', 'finally done')
 
-    # find username from lineID
+    # example: find username from lineID
     result_set = database.GetUserNamefromLineID('32')
     print(result_set)
+    
+    # 把form insert到database裡
+    database.InsertForm(form)
 
     return ajaxResponse({'msg': 'fill form successfully'})
 
