@@ -6,6 +6,9 @@ sqlite3.enable_callback_tracebacks(True)
 from connection import *
 from linebot import LineBotApi
 from linebot.models import TextSendMessage, ImageSendMessage, MessageEvent, TextMessage, TemplateSendMessage, ButtonsTemplate, PostbackAction, MessageTemplateAction, PostbackEvent
+from sqlalchemy.sql.expression import func
+from sqlalchemy.orm import sessionmaker
+from datetime import date, timedelta
 
 class Database:
 
@@ -14,6 +17,8 @@ class Database:
     host = 'database-1.cbixtilkjhc6.ap-northeast-1.rds.amazonaws.com'
     port = 5432
     dbname = 'HCI database'
+    session = None
+    reminder_id = 0
 
     def __init__(self):
         
@@ -43,6 +48,9 @@ class Database:
             self.RemindGroups = Table('RemindGroups', self.meta,
                                  Column('GroupID', String),
                                  Column('GroupName', String))
+            Session = sessionmaker(bind=self.db)
+            self.session = Session()
+            self.reminder_id = self.GetLargestReminderID() + 1
       
         except Exception as ex:
             print("Connection could not be made due to the following error: \n",
@@ -54,7 +62,7 @@ class Database:
 
     def GetGroupNameFromGroupID(self, id):
         select_statement = self.RemindGroups.select().where(self.RemindGroups.c.GroupID == id)
-        return self.db.execute(select_statement).fetchall()
+        return self.db.execute(select_statement).fetchall()[0][1]
 
     def InsertUser(self, id, name):
         insert_statement = self.Users.insert().values(LineID=id, UserName=name)
@@ -62,7 +70,7 @@ class Database:
 
     def GetUserNamefromLineID(self, id):
         select_statement = self.Users.select().where(self.Users.c.LineID == id)
-        return self.db.execute(select_statement).fetchall()
+        return self.db.execute(select_statement).fetchall()[0][1]
 
     def InsertReminder(self, title, rid, name, pic, hospital, gid, type):
         insert_statement = self.Reminders.insert().values(
@@ -72,7 +80,7 @@ class Database:
 
     def GetReminderFromReminderID(self, id):
         select_statement = self.Reminders.select().where(self.Reminders.c.ReminderID == id)
-        return self.db.execute(select_statement).fetchall()
+        return self.db.execute(select_statement).fetchall()[0]
 
     def InsertRemindTime(self, id, time, date):
         insert_statement = self.RemindTimes.insert().values(
@@ -82,6 +90,70 @@ class Database:
     def GetRemindTimesFromReminderID(self, id):
         select_statement = self.RemindTimes.select().where(self.RemindTimes.c.ReminderID == id)
         return self.db.execute(select_statement).fetchall()
+    	
+    def GetLargestReminderID(self):
+        return self.session.query(func.max(self.Reminders.c.ReminderID)).scalar()
+    
+    	
+    def InsertForm(self, form):
+        # 統整參數
+        get_med = True
+        title = ''
+        pic = None
+        begin_date_str = ''
+        end_date_str = ''
+        user_name = ''
+        hospital = ''
+        group_id = None
+        
+        # 取得給reminder的實際數值
+        if form['med'] == 'take':
+            get_med = False
+        title = form['title']
+        begin_date_str = form['begindate']
+        end_date_str = form['enddate']
+        user_name = self.GetUserNamefromLineID(form['user_id'])
+        # insert至reminder
+        insert_statement = self.Reminders.insert().values(
+            Title=title,
+            ReminderID=self.reminder_id,
+            UserName=user_name,
+            Picture=pic,
+            Hospital=hospital,
+            GroupID=group_id,
+            GetMedicine=get_med)
+        self.db.execute(insert_statement)
+        
+        # 取得給remindTime的數值
+        ## date的部分
+        begin_date_list = [int(num) for num in begin_date_str.split('-')]
+        begin_date = date(begin_date_list[0], begin_date_list[1],
+                          begin_date_list[2])
+        end_date_list = [int(num) for num in end_date_str.split('-')]
+        end_date = date(end_date_list[0], end_date_list[1], end_date_list[2])
+        delta = end_date - begin_date
+        ## time的部分
+        num = 0
+        time_picker = 'timepicker' + str(num)
+        time_list = list()
+        while time_picker in form:
+            time_list.append(form[time_picker])
+            num += 1
+            time_picker = 'timepicker' + str(num)
+        ## 依序insert
+        for i in range(delta.days + 1):
+            day = begin_date + timedelta(days=i)
+            num = 0
+            time_picker = 'timepicker' + str(num)
+            for current_time in time_list:
+                insert_statement = self.RemindTimes.insert().values(
+                    ReminderID=self.reminder_id,
+                    RemindTime=current_time,
+                    RemindDate=day)
+                self.db.execute(insert_statement)
+                
+        # 最後記得id++
+        self.reminder_id += 1
     
 
 def getKey():
