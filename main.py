@@ -105,7 +105,8 @@ def search_routine():
         then we will handle ajax things
     '''
     user_id = request.form["user_id"]
-    
+    user_data = database.GetUserAllReminds(user_id)
+    print(user_data)
     return ajaxResponse({"foo": "bar"})
 
 
