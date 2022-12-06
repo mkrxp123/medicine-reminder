@@ -8,7 +8,7 @@ from linebot import LineBotApi
 from linebot.models import TextSendMessage, ImageSendMessage, MessageEvent, TextMessage, TemplateSendMessage, ButtonsTemplate, PostbackAction, MessageTemplateAction, PostbackEvent
 from sqlalchemy.sql.expression import func
 from sqlalchemy.orm import sessionmaker
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 
 class Database:
 
@@ -154,7 +154,26 @@ class Database:
                 
         # 最後記得id++
         self.reminder_id += 1
-    
+        # 查詢今日所有的提醒的全部資料並存入一個list of dictionary 大概長這樣[{}, {}, {}]
+    def GetTodayReminds(self):
+        today = datetime.today().strftime('%Y-%m-%d')
+        select_statement = '''select * from (select * from "RemindTimes" where "RemindDate" = '{0}'::date) as RemindTime natural join "Reminders" natural join "Users" natural join "RemindGroups"'''.format(
+            today)
+        result = self.db.execute(select_statement).fetchall()
+        Today_Reminds = []
+        for row in result:
+            Today_Reminds.append(dict(row))
+        return Today_Reminds
+
+    # 查詢特定使用者的全部資料
+    def GetUserAllReminds(self, user_id):
+        select_statement = '''select * from (select * from "Users" where "LineID" = '{0}') as users natural join "Reminders" natural join "RemindTimes" natural join "RemindGroups"'''.format(
+            user_id)
+        result = self.db.execute(select_statement).fetchall()
+        User_Reminds = []
+        for row in result:
+            User_Reminds.append(dict(row))
+        return User_Reminds
 
 def getKey():
     with open("setting/key.json", 'r') as f:
