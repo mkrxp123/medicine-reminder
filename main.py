@@ -93,7 +93,11 @@ def fill_form():
     
     # 把form insert到database裡
     database.InsertForm(form)
-
+    
+    # 嘗試拿到今天的remind
+    today_remind = database.GetTodayReminds()
+    print(today_remind)
+    
     return ajaxResponse({'msg': 'fill form successfully'})
 
 
@@ -104,6 +108,7 @@ def search_routine():
         implement search routine function here
         then we will handle ajax things
     '''
+    # 拿特定User的Reminds
     user_id = request.form["user_id"]
     user_data = database.GetUserAllReminds(user_id)
     print(user_data)
