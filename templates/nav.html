@@ -99,13 +99,34 @@
 				<h3>Form</h3>
 				<form class="form-horizontal" method="post" id="form">
 					<div class="col-sm-2">
-						<input type="radio" id="take" name="med" value="take" checked>
+						<input type="radio" id="take" name="med" value="take" checked onclick="showHospital()">
 						<label for="take">吃藥</label>
-						<input type="radio" id="pick_up" name="med" value="pick_up">
+						<input type="radio" id="pick_up" name="med" value="pick_up" onclick="showHospital()">
 						<label for="pick_up">領藥</label>
+						<script type="text/javascript">
+							function showHospital() {
+							// Get the checkbox
+							var checkPick = document.getElementById("pick_up");
+							var checkTake = document.getElementById("take");
+							// Get the output text
+							var text = document.getElementById("hospital");
+							
+							// If the checkbox is checked, display the output text
+							if (checkTake.checked == true){
+								text.style.display = "none";
+							} else if(checkPick.checked == true) {
+								text.style.display = "block";
+								
+							}
+							}
+						</script>
 					</div>
           			<div class="form-group" id="routine_form">
                         <div class="row">
+                            <div class="col-sm-2" id="hospital" style="display:none">
+                              <label for="hospital" >輸入診所</label>
+                                <input type="text" class="form-control" name="hospital" placeholder="Enter Hospital">
+                            </div>
                             <div class="col-sm-2">
                                 <label for="title">輸入標題</label>
                                 <input type="text" class="form-control" id="title" name="title" placeholder="Enter Title" required>
