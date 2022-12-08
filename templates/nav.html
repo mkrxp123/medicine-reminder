@@ -105,19 +105,20 @@
 						<label for="pick_up">領藥</label>
 						<script type="text/javascript">
 							function showHospital() {
-							// Get the checkbox
-							var checkPick = document.getElementById("pick_up");
-							var checkTake = document.getElementById("take");
-							// Get the output text
-							var text = document.getElementById("hospital");
-							
-							// If the checkbox is checked, display the output text
-							if (checkTake.checked == true){
-								text.style.display = "none";
-							} else if(checkPick.checked == true) {
-								text.style.display = "block";
-								
-							}
+								// Get the checkbox
+								var checkPick = document.getElementById("pick_up");
+								var checkTake = document.getElementById("take");
+								// Get the output text
+								var inputBar = document.getElementById("hospital");
+								var hosText = document.getElementById("hospinput");
+								// If the checkbox is checked, display the output text
+								if (checkTake.checked == true){
+									inputBar.style.display = "none";
+									hosText.value = "";
+								} 
+								else if(checkPick.checked == true) {
+									inputBar.style.display = "block";
+								}
 							}
 						</script>
 					</div>
@@ -125,7 +126,7 @@
                         <div class="row">
                             <div class="col-sm-2" id="hospital" style="display:none">
                               <label for="hospital" >輸入診所</label>
-                                <input type="text" class="form-control" name="hospital" placeholder="Enter Hospital">
+                                <input id="hospinput" type="text" class="form-control" name="hospital" placeholder="Enter Hospital">
                             </div>
                             <div class="col-sm-2">
                                 <label for="title">輸入標題</label>
