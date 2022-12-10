@@ -16,6 +16,7 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
 	<link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.css' rel='stylesheet' />
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.js'></script>
+	<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script>
       document.addEventListener('DOMContentLoaded', function() {
         var calendarEl = document.getElementById('calendar');
@@ -216,6 +217,17 @@
 			</div>
 			<div class="tab-pane fade" id="Adjust" role="tabpanel" aria-labelledby="Adjust-tab">
 				<h3>Adjust</h3>
+				<h3>(( msg ))</h3>
+				<div class="row row-cols-1 row-cols-md-4 g-4">
+					<div class="col" v-for="a in arr" :key="a">
+						<div class="card">
+							<div class="card-body">
+								<h5 class="card-title">Card title</h5>
+								<p class="card-text">(( a ))</p>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 			<div class="tab-pane fade in active" id="Calendar" role="tabpanel" aria-labelledby="Calendar-tab">
 				<div id="calendar"></div>
@@ -223,7 +235,7 @@
 		</div>
 	</div>
 </body>
-<script>
+<script type="module">
 	var liff_id = '{{ liff_id }}';
 	var user_id;
 	liff.init({
@@ -242,4 +254,15 @@
 	}).catch(error=>{
 		console.log('error', error);
 	})
+	var Adjust = Vue.createApp({
+		delimiters: ["((", "))"], // otherwise original delimiter of Vue would conflict with that of Jinja
+		data() {
+			return {
+				msg: 'Hello Vue!',
+				arr: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+				inputs: []
+			}
+		}
+	});
+	Adjust.mount('#Adjust');
 </script>
