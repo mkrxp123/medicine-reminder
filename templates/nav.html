@@ -21,12 +21,12 @@
       document.addEventListener('DOMContentLoaded', function() {
         var calendarEl = document.getElementById('calendar');
         var calendar = new FullCalendar.Calendar(calendarEl, {
-          initialView: 'dayGridMonth',
-          contentHeight: 'auto',
-          editable: true,
-          dateClick: function(info) {
+			initialView: 'dayGridMonth',
+			contentHeight: 'auto',
+			editable: true,
+			dateClick: function(info) {
 				alert(info);
-						// console.log(info.dateStr);
+				// console.log(info.dateStr);
 			}
         });
         calendar.render();
@@ -273,14 +273,37 @@
 	}).catch(error=>{
 		console.log('error', error);
 	})
+
+	function searchRoutine(){
+        console.log(user_id);
+		$.ajax({
+			url: "/search-routine",
+			method: "POST",
+			contentType: "application/json",
+			data: JSON.stringify({"user_id": "U1100043733aea416a3c3055dfa4accdf"}),
+			async: false,
+			success: function (data) {
+				console.log(data);
+				return data;
+			},
+			error: function (jqxhr, textStatus, errorThrown) {
+				alert("error: " + textStatus);
+				return -1;
+			}
+		})
+	}
+
 	var Adjust = Vue.createApp({
 		delimiters: ["((", "))"], // otherwise original delimiter of Vue would conflict with that of Jinja
 		data() {
 			return {
-				msg: 'Hello Vue!',
+				msg: user_id,
 				arr: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
 				inputs: []
 			}
+		},
+		mounted() {
+			searchRoutine();
 		}
 	});
 	Adjust.mount('#Adjust');
