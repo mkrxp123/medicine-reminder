@@ -59,12 +59,14 @@ def fill_form():
     implement insert time table sql here
     form structure:
     {
-        "user_id"    : "<string>"
+        "user_id"    : "<string>",
+        'med'        : "<string>",
+        'hospital'   : "<string>",
+        'img'        : "not yet implemented",
+        'title'      : "<string>",
         "begindate"  : "<string>",
         "enddate"    : "<string>",
-        "timepicker0": "<string>",
-        "timepicker1": "<string>",
-        ...
+        "timepickers": ["<string>", "<string>", ...]
     }
     '''
 
@@ -87,15 +89,15 @@ def fill_form():
     #database.InsertGroup('this parameter has 33 characters.', 'finally done')
 
     # example: find username from lineID
-    result_set = database.GetUserNamefromLineID('32')
-    print(result_set)
+    #result_set = database.GetUserNamefromLineID('32')
+    #print(result_set)
 
     # 把form insert到database裡
-    database.InsertForm(form)
+    #database.InsertForm(form)
 
     # 嘗試拿到今天的remind
-    today_remind = database.GetTodayReminds()
-    print(today_remind)
+    #today_remind = database.GetTodayReminds()
+    #print(today_remind)
 
     return ajaxResponse({'msg': 'fill form successfully'})
 

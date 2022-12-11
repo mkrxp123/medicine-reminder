@@ -96,40 +96,24 @@
 			</div>
 			<div class="tab-pane fade" id="Form" role="tabpanel" aria-labelledby="Form-tab">
 				<h3>Form</h3>
-				<form class="form-horizontal" method="post" id="form">
+                (( index ))
+                (( inputs ))
+				<form class="form-horizontal" id="form" @submit.prevent="fillForm()">
 					<div class="col-sm-2">
-						<input type="radio" id="take" name="med" value="take" checked onclick="showHospital()">
+						<input type="radio" id="take" name="med" value="take" v-model="inputs['med']" @click="resetHospital" checked>
 						<label for="take">吃藥</label>
-						<input type="radio" id="pick_up" name="med" value="pick_up" onclick="showHospital()">
+						<input type="radio" id="pick_up" name="med" value="pick_up" v-model="inputs['med']">
 						<label for="pick_up">領藥</label>
-						<script type="text/javascript">
-							function showHospital() {
-								// Get the checkbox
-								var checkPick = document.getElementById("pick_up");
-								var checkTake = document.getElementById("take");
-								// Get the output text
-								var inputBar = document.getElementById("hospital");
-								var hosText = document.getElementById("hospinput");
-								// If the checkbox is checked, display the output text
-								if (checkTake.checked == true){
-									inputBar.style.display = "none";
-									hosText.value = "";
-								} 
-								else if(checkPick.checked == true) {
-									inputBar.style.display = "block";
-								}
-							}
-						</script>
 					</div>
           			<div class="form-group" id="routine_form">
                         <div class="row">
-                            <div class="col-sm-2" id="hospital" style="display:none">
-                              <label for="hospital" >輸入診所</label>
-                                <input id="hospinput" type="text" class="form-control" name="hospital" placeholder="Enter Hospital">
+                            <div class="col-sm-2" id="hospital" v-if="inputs['med'] == 'pick_up'">
+                                <label for="hospital" >輸入診所</label>
+                                <input id="hospinput" type="text" class="form-control" name="hospital" placeholder="Enter Hospital" v-model="inputs['hospital']">
                             </div>
                             <div class="col-sm-2">
                                 <label for="title">輸入標題</label>
-                                <input type="text" class="form-control" id="title" name="title" placeholder="Enter Title" required>
+                                <input type="text" class="form-control" id="title" name="title" placeholder="Enter Title" required v-model="inputs['title']">
                             </div>
                             <div class="col-sm-2">
                                 <label for="img">上傳圖片</label>
@@ -139,11 +123,11 @@
                         <div class="row">
 						    <div class="col-sm-2">
                                 <label for="begindate">起始時間</label>
-    							<input type="date" class="form-control" name="begindate" id="begindate" required>
+    							<input type="date" class="form-control" name="begindate" id="begindate" required v-model="inputs['begindate']">
     						</div>
     						<div class="col-sm-2">
     						    <label for="enddate">結束時間</label>
-    							<input type="date" class="form-control" name="enddate" id="enddate">
+    							<input type="date" class="form-control" name="enddate" id="enddate" v-model="inputs['enddate']">
     						</div>
                         </div>
 						<table class="table table-striped">
@@ -154,64 +138,20 @@
 								</tr>
 							</thead>
 							<tbody id="routine_table">
+                                <tr v-for="i in index" :key="i">
+                                    <th scope="row">(( i ))</th>
+                                    <td><input type="time" :name="'timepicker' + i" v-model="inputs['timepickers'][i - 1]" required></td>
+                                </tr>
 							</tbody>
 						</table>
 						<div class="form-group">
-							<button type="button" style="margin-left: 12px;" class="btn btn-secondary" onclick="addRoutine()">增加行程</button>
-							<button type="button" style="margin-left: 12px;" class="btn btn-warning" onclick="delRoutine()">減少行程</button>
-							<button type="button" style="margin-left: 12px;" class="btn btn-danger" onclick="resetRoutine()">重置</button>
+							<button type="button" style="margin-left: 12px;" class="btn btn-secondary" @click="push()">增加行程</button>
+							<button type="button" style="margin-left: 12px;" class="btn btn-warning" @click="pop()">減少行程</button>
+							<button type="button" style="margin-left: 12px;" class="btn btn-danger" @click="reset()">重置</button>
 							<button type="submit" style="margin-left: 12px;" class="btn btn-primary">送出</button>
 						</div>
 					</div>
 				</form>
-				<script type="text/javascript">
-					var count = 0, init_block = $("#routine_form").prop('outerHTML');
-					function addRoutine(){
-						var time_input = `<input type="time" name="timepicker${count}" required>`;
-						$("#routine_table").append(`<tr id=row${count}><th scope="row">${count}</th><td>${time_input}</td></tr>`);
-						count += 1;
-					}
-					function delRoutine(){
-						if(count > 0){
-							$(`#row${count-1}`).remove();
-							count -= 1;
-						}
-					}
-					function resetRoutine(){
-						$("#routine_table").html("");
-						count = 0;
-					}
-					$('form.form-horizontal').on('submit', function () {
-						var f = $(this), m= f.attr('method'), input_value = {};
-						f.find('[name]').each(function (index, value) {
-							var inputs = $(this),
-							name = inputs.attr('name');
-							if(name == "med"){
-									value = inputs.val();
-									input_value[name] = $("#form input[type='radio']:checked").val();
-							}
-							else{
-								value = inputs.val();
-								input_value[name] = value;
-							}
-						});
-						input_value['user_id'] = user_id;
-						$.ajax({
-							url: "/fill-form",
-							method: m,
-              				contentType: "application/json",
-							data: JSON.stringify(input_value),
-							async: false,
-							success: function (data) {
-                				alert(data.msg);
-							},
-							error: function (jqxhr, textStatus, errorThrown) {
-								alert("error: " + textStatus);
-							}
-						})
-						return false;
-					});
-				</script>
 			</div>
 			<div class="tab-pane fade" id="Adjust" role="tabpanel" aria-labelledby="Adjust-tab">
 				<h3>Adjust</h3>
@@ -274,6 +214,68 @@
 		console.log('error', error);
 	})
 
+    function submitForm(dict){
+        $.ajax({
+			url: "/fill-form",
+			method: "POST",
+			contentType: "application/json",
+			data: JSON.stringify(dict),
+			async: false,
+			success: function (data) {
+				console.log(data);
+			},
+			error: function (jqxhr, textStatus, errorThrown) {
+				alert("error: " + textStatus);
+			}
+		})
+    }
+    
+    var Form = Vue.createApp({
+        delimiters: ["((", "))"], // otherwise original delimiter of Vue would conflict with that of Jinja
+        data() {
+            return {
+                index: [],
+                inputs: {
+                    'user_id':'',
+                    'med':'take',
+                    'hospital':'',
+                    'title':'',
+                    'img':'',
+                    'begindate':'',
+                    'enddate':'',
+                    'timepickers': []
+                }
+            }
+        },
+        methods: {
+            fillForm() {
+                this.inputs['user_id'] = user_id;
+                submitForm(this.inputs);
+            },
+            push(){
+                this.index.push(this.index.length + 1);
+            },
+            pop(){
+                if(this.index.length > 0){
+                    this.index.pop();
+                    var len = this.index.length;
+                    while(this.inputs['timepickers'].length > len){
+                        this.inputs['timepickers'].pop();
+                    }
+                }
+            },
+            reset(){
+                while(this.index.length > 0){
+                    this.pop();
+                }
+            },
+            resetHospital(){
+                this.inputs["hospital"] = "";
+            }
+        }
+    });
+    Form.mount('#Form');
+    
 	function searchRoutine(){
         console.log(user_id);
 		$.ajax({
@@ -301,9 +303,6 @@
 				arr: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
 				inputs: []
 			}
-		},
-		mounted() {
-			searchRoutine();
 		}
 	});
 	Adjust.mount('#Adjust');
