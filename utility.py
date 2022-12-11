@@ -114,6 +114,7 @@ class Database:
         end_date_str = form['enddate']
         user_name = self.GetUserNamefromLineID(form['user_id'])
         hospital = form['hospital']
+        
         # insert至reminder
         insert_statement = self.Reminders.insert().values(
             Title=title,
@@ -133,19 +134,13 @@ class Database:
         end_date_list = [int(num) for num in end_date_str.split('-')]
         end_date = date(end_date_list[0], end_date_list[1], end_date_list[2])
         delta = end_date - begin_date
+        
         ## time的部分
-        num = 0
-        time_picker = 'timepicker' + str(num)
-        time_list = list()
-        while time_picker in form:
-            time_list.append(form[time_picker])
-            num += 1
-            time_picker = 'timepicker' + str(num)
+        time_list = form['timepickers']
+            
         ## 依序insert
         for i in range(delta.days + 1):
             day = begin_date + timedelta(days=i)
-            num = 0
-            time_picker = 'timepicker' + str(num)
             for current_time in time_list:
                 insert_statement = self.RemindTimes.insert().values(
                     ReminderID=self.reminder_id,
@@ -155,7 +150,8 @@ class Database:
                 
         # 最後記得id++
         self.reminder_id += 1
-        # 查詢今日所有的提醒的全部資料並存入一個list of dictionary 大概長這樣[{}, {}, {}]
+        
+    # 查詢今日所有的提醒的全部資料並存入一個list of dictionary 大概長這樣[{}, {}, {}]
     def GetTodayReminds(self):
         today = datetime.today().strftime('%Y-%m-%d')
         select_statement = '''select * from (select * from "RemindTimes" where "RemindDate" = '{0}'::date) as RemindTime natural join "Reminders" natural join "Users" natural join "RemindGroups"'''.format(
