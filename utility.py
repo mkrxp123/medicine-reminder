@@ -113,6 +113,7 @@ class Database:
         begin_date_str = form['begindate']
         end_date_str = form['enddate']
         user_name = self.GetUserNamefromLineID(form['user_id'])
+        hospital = form['hospital']
         # insert至reminder
         insert_statement = self.Reminders.insert().values(
             Title=title,
