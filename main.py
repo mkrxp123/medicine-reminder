@@ -69,6 +69,8 @@ def fill_form():
         "timepickers": ["<string>", "<string>", ...]
     }
     '''
+    
+    database.InsertForm(form)
 
     # 看有幾個timepicker
     #num = len(form.keys())
