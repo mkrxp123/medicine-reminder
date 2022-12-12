@@ -25,37 +25,37 @@ database = Database()
 # 接收 LINE 的資訊
 @app.route("/callback", methods=['POST'])
 def callback():
-    signature = request.headers['X-Line-Signature']
+  signature = request.headers['X-Line-Signature']
 
-    body = request.get_data(as_text=True)
-    app.logger.info("Request body: " + body)
-    try:
-        handler.handle(body, signature)
-    except InvalidSignatureError:
-        abort(400)
+  body = request.get_data(as_text=True)
+  app.logger.info("Request body: " + body)
+  try:
+    handler.handle(body, signature)
+  except InvalidSignatureError:
+    abort(400)
 
-    return 'OK'
+  return 'OK'
 
 
 @app.route("/")
 def home():
-    '''
+  '''
     redirect user to nav.html
     '''
-    return redirect(url_for('nav'))
+  return redirect(url_for('nav'))
 
 
 @app.route("/nav")
 def nav():
-    liff_id = config["Liff ID"]
-    return render_template("nav.html", liff_id=liff_id)
+  liff_id = config["Liff ID"]
+  return render_template("nav.html", liff_id=liff_id)
 
 
 @app.route("/fill-form", methods=["POST"])
 def fill_form():
-    form = request.json
-    print(form)
-    '''
+  form = request.json
+  print(form)
+  '''
     implement insert time table sql here
     form structure:
     {
@@ -69,87 +69,86 @@ def fill_form():
         "timepickers": ["<string>", "<string>", ...]
     }
     '''
-    
-    database.InsertForm(form)
 
-    # 看有幾個timepicker
-    #num = len(form.keys())
-    #num -= 3
-    #num -= 1
-    # print("NUM: ", num)
-    # insert data into database based on data given
+  database.InsertForm(form)
 
-    # insert UserID and UserName into Users
-    # select_statement = database.Users.select().where(database.Users.c.LineID == form['user_id'])
-    # check_exist = database.db.execute(select_statement).fetchall()
-    # if len(check_exist) == 0:
-    #     insert_statement = database.Users.insert().values(LineID=form['user_id'],
-    #                                              UserName='test6')
-    #    database.db.execute(insert_statement)
+  # 看有幾個timepicker
+  #num = len(form.keys())
+  #num -= 3
+  #num -= 1
+  # print("NUM: ", num)
+  # insert data into database based on data given
 
-    # insert to group
-    #database.InsertGroup('this parameter has 33 characters.', 'finally done')
+  # insert UserID and UserName into Users
+  # select_statement = database.Users.select().where(database.Users.c.LineID == form['user_id'])
+  # check_exist = database.db.execute(select_statement).fetchall()
+  # if len(check_exist) == 0:
+  #     insert_statement = database.Users.insert().values(LineID=form['user_id'],
+  #                                              UserName='test6')
+  #    database.db.execute(insert_statement)
 
-    # example: find username from lineID
-    #result_set = database.GetUserNamefromLineID('32')
-    #print(result_set)
+  # insert to group
+  #database.InsertGroup('this parameter has 33 characters.', 'finally done')
 
-    # 把form insert到database裡
-    #database.InsertForm(form)
+  # example: find username from lineID
+  #result_set = database.GetUserNamefromLineID('32')
+  #print(result_set)
 
-    # 嘗試拿到今天的remind
-    #today_remind = database.GetTodayReminds()
-    #print(today_remind)
+  # 把form insert到database裡
+  #database.InsertForm(form)
 
-    return ajaxResponse({'msg': 'fill form successfully'})
+  # 嘗試拿到今天的remind
+  #today_remind = database.GetTodayReminds()
+  #print(today_remind)
+
+  return ajaxResponse({'msg': 'fill form successfully'})
 
 
 @app.route("/search-routine", methods=["POST"])
 def search_routine():
-    '''
+  '''
         tell html guys what to chage if you need extra input
         implement search routine function here
         then we will handle ajax things
     '''
-    # 拿特定User的Reminds
-    user_id = request.json["user_id"]
-    user_data = database.GetUserAllReminds(user_id)
-    data = [{
-        key: item
-        for key, item in d.items()
-        if key not in ["GroupID", "GroupName", "UserName", "LineID"]
-    } for d in user_data]
-    for d in data:
-        print(d)
-    return ajaxResponse({"msg": "temp"})
+  # 拿特定User的Reminds
+  user_id = request.json["user_id"]
+  user_data = database.GetUserAllReminds(user_id)
+  data = [{
+    key: item
+    for key, item in d.items()
+    if key not in ["GroupID", "GroupName", "UserName", "LineID"]
+  } for d in user_data]
+  for d in data:
+    print(d)
+  return ajaxResponse(data)
 
 
 # see https://xiaosean.github.io/chatbot/2018-04-19-LineChatbot_usage/
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    # get user id when reply
-    user_id = event.source.user_id
-    print("user_id =", user_id)
-    msg = TextSendMessage(text=f'https://liff.line.me/{config["Liff ID"]}')
-    line_bot_api.reply_message(event.reply_token, msg)
+  # get user id when reply
+  user_id = event.source.user_id
+  print("user_id =", user_id)
+  msg = TextSendMessage(text=f'https://liff.line.me/{config["Liff ID"]}')
+  line_bot_api.reply_message(event.reply_token, msg)
 
 
 @handler.add(PostbackEvent)
 def handle_postback(event):  #吃藥提醒按鈕回傳值
-    if event.postback.data == 'ateMedicine':
-        msg = TextSendMessage(text="您已服用藥物!\n又是個健康的一天:D")
-        line_bot_api.reply_message(event.reply_token, msg)
-    else:
-        schedule.every(10).seconds.until(timedelta(minutes=2)).do(
-            pushremindMsg())
+  if event.postback.data == 'ateMedicine':
+    msg = TextSendMessage(text="您已服用藥物!\n又是個健康的一天:D")
+    line_bot_api.reply_message(event.reply_token, msg)
+  else:
+    schedule.every(10).seconds.until(timedelta(minutes=2)).do(pushremindMsg())
 
 
 if __name__ == '__main__':
-    postgres_manager = PostgresBaseManager()
-    postgres_manager.runServerPostgresdb()
-    remindList = postgres_manager.checkRemindTime()  #確認當前時間的提醒數量
-    pushremindMsg()  #傳送吃藥提醒
-    app.debug = True
-    app.run(host='0.0.0.0', port=8080, use_reloader=False)
-    schedule.run_pending()
-    time.sleep(1)
+  postgres_manager = PostgresBaseManager()
+  postgres_manager.runServerPostgresdb()
+  remindList = postgres_manager.checkRemindTime()  #確認當前時間的提醒數量
+  pushremindMsg()  #傳送吃藥提醒
+  app.debug = True
+  app.run(host='0.0.0.0', port=8080, use_reloader=False)
+  schedule.run_pending()
+  time.sleep(1)

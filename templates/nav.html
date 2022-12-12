@@ -18,19 +18,77 @@
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.js'></script>
 	<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        var calendarEl = document.getElementById('calendar');
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-			initialView: 'dayGridMonth',
-			contentHeight: 'auto',
-			editable: true,
-			dateClick: function(info) {
-				alert(info);
-				// console.log(info.dateStr);
-			}
+        let event = []; // 空list
+        // ajax 從資料庫獲取資料
+        async function post_api() {
+            const url = '/search-routine';
+            const response = await fetch(url, {
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                method: "POST",
+                body: JSON.stringify(
+                    // {"user_id": "Ube732a2b97858907ba6009b33f357ac6"} // hospital
+                    {"user_id":"U1100043733aea416a3c3055dfa4accdf"}
+                )
+            })
+			const res = await response.json();
+			// console.log("res: ",res);
+			// ajax 結果新增到 event
+			res.map(value => {
+				console.log(value);
+				if(value['Hospital'] != ''){
+					event.push({
+						title: value['Title'],
+						start: value['begindate'],
+						end: value['enddate'],
+						extendedProps:{
+							hospital: value['Hospital'],
+						},
+						backgroundColor:'default'
+					})}
+				else{
+				event.push({
+					title: value['Title'],
+					start: value['begindate'],
+					end: value['enddate'],
+					backgroundColor:'red'
+				})
+				}
+          })
+        }
+        document.addEventListener('DOMContentLoaded', async function() {
+			// var eve = searchRoutine();
+			// console.log(eve);
+			await post_api()
+			var calendarEl = document.getElementById('calendar');
+			var calendar = new FullCalendar.Calendar(calendarEl, {
+				initialView: 'dayGridMonth',
+				contentHeight: 'auto',
+				editable: true,
+				events: event,
+				// dateClick: function(info) {
+			//      var date = new Date(info.dateStr + 'T00:00:00');
+						// 	alert(info.dateStr);
+			//      calendar.addEvent({
+			//            title: 'dynamic event',
+			//            start: date,
+			//            allDay: true
+			//          });
+				// 	// console.log(info.dateStr);
+				// },
+				eventClick: function(info) {
+						if(typeof info.event.extendedProps.Hospital != 'undefined'){
+							alert('Event: ' + info.event.title + info.event.extendedProps.Hospital);
+						}
+						else{
+							alert('Event: ' + info.event.title);
+						}
+					}
+        	});
+        	calendar.render();
         });
-        calendar.render();
-      });
     </script>
 	<title>medicine investigate form</title>
 </head>
