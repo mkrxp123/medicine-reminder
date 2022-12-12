@@ -164,13 +164,41 @@ class Database:
 
     # 查詢特定使用者的全部資料
     def GetUserAllReminds(self, user_id):
-        select_statement = '''select * from (select * from "Users" where "LineID" = '{0}') as users natural join "Reminders" natural join "RemindTimes" natural join "RemindGroups"'''.format(
-            user_id)
+        select_statement = '''select * from (select * from "Users" where "LineID" = '{0}') as users natural join "Reminders" natural join "RemindTimes" natural join "RemindGroups"'''.format(user_id)
         result = self.db.execute(select_statement).fetchall()
-        User_Reminds = []
+        user_data = []
+        dates = []
         for row in result:
-            User_Reminds.append(dict(row))
-        return User_Reminds
+            user_data.append(dict(row))
+        select_statement = '''with date_calc as (select "ReminderID", min("RemindDate") as begindate, max("RemindDate") as enddate from "RemindTimes" Group by "ReminderID" order by "ReminderID" asc) select distinct "ReminderID", begindate, enddate from (select * from "Users" where "LineID" = '{0}') as users natural join "Reminders" natural join "RemindTimes" natural join "RemindGroups" natural join "date_calc"'''.format(user_id)
+        result = self.db.execute(select_statement).fetchall()
+        for row in result:
+            dates.append(dict(row))
+        #user_data = sorted(user_data, key = itemgetter('ReminderID'))
+        #select_statement = '''with date_calc as (select "ReminderID", min("RemindDate") as begindate, max("RemindDate") as enddate from "RemindTimes" Group by "ReminderID" order by "ReminderID" asc) select distinct "ReminderID", begindate, enddate from (select * from "Users" where "LineID" = 'U1100043733aea416a3c3055dfa4accdf') as users natural join "Reminders" natural join "RemindTimes" natural join "RemindGroups" natural join "date_calc"'''
+        final = []
+        for dic in user_data:
+            dic["RemindDate"] = dic["RemindDate"].strftime("%Y-%m-%d")
+            dic["RemindTime"] = dic["RemindTime"].strftime("%H:%M")
+        for dic in dates:
+            dic["begindate"] = dic["begindate"].strftime("%Y-%m-%d")
+            dic["enddate"] = dic["enddate"].strftime("%Y-%m-%d")
+        for IDs in dates:
+            temp = []
+            for times in user_data:
+                if IDs["ReminderID"] == times["ReminderID"]:
+                    temp.append(dict(times))
+            final.append(dict(temp[0]))   
+        for records in final:
+            for datas in dates:
+                if records["ReminderID"] == datas["ReminderID"]:
+                    records.update({'begindate':datas["begindate"]})
+                    records.update({'enddate':datas["enddate"]})
+                    records["RemindTime"] = []
+            for datas in user_data:
+                if records["ReminderID"] == datas["ReminderID"] and datas["RemindTime"] not in records["RemindTime"]:
+                    records["RemindTime"].append(datas["RemindTime"])
+        return final
 
 def getKey():
     with open("setting/key.json", 'r') as f:
