@@ -11,6 +11,7 @@ from connection import *
 import schedule
 import time
 from datetime import datetime, timezone, timedelta
+from apscheduler.schedulers.background import BackgroundScheduler
 
 config = getKey()
 # uncomment after you finish database connection
@@ -20,6 +21,10 @@ line_bot_api = LineBotApi(config["Channel access token"])
 handler = WebhookHandler(config["Channel secret"])
 app = Flask(__name__)
 database = Database()
+
+sche = BackgroundScheduler(daemon=True)
+sche.add_job(pushremindMsg, 'interval', minutes=5)
+sche.start()
 
 
 # 接收 LINE 的資訊
@@ -80,12 +85,6 @@ def fill_form():
   # insert data into database based on data given
 
   # insert UserID and UserName into Users
-  # select_statement = database.Users.select().where(database.Users.c.LineID == form['user_id'])
-  # check_exist = database.db.execute(select_statement).fetchall()
-  # if len(check_exist) == 0:
-  #     insert_statement = database.Users.insert().values(LineID=form['user_id'],
-  #                                              UserName='test6')
-  #    database.db.execute(insert_statement)
 
   # insert to group
   #database.InsertGroup('this parameter has 33 characters.', 'finally done')
@@ -113,6 +112,7 @@ def search_routine():
     '''
   # 拿特定User的Reminds
   user_id = request.json["user_id"]
+  #print(user_id)
   user_data = database.GetUserAllReminds(user_id)
   data = [{
     key: item
@@ -139,8 +139,6 @@ def handle_postback(event):  #吃藥提醒按鈕回傳值
   if event.postback.data == 'ateMedicine':
     msg = TextSendMessage(text="您已服用藥物!\n又是個健康的一天:D")
     line_bot_api.reply_message(event.reply_token, msg)
-  else:
-    schedule.every(10).seconds.until(timedelta(minutes=2)).do(pushremindMsg())
 
 
 if __name__ == '__main__':
@@ -150,5 +148,3 @@ if __name__ == '__main__':
   pushremindMsg()  #傳送吃藥提醒
   app.debug = True
   app.run(host='0.0.0.0', port=8080, use_reloader=False)
-  schedule.run_pending()
-  time.sleep(1)
