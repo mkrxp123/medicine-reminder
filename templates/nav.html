@@ -98,7 +98,7 @@
 				<a class="navbar-brand">medicine investigate form</a>
 		</div>
 	</nav>
-	<div class="container">
+	<div class="container" id="app">
 		<ul class="nav nav-tabs" id="myTab" role="tablist">
 			<li class="nav-item" role="presentation">
         		<button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#Profile" type="button" role="tab" aria-controls="home" aria-selected="true">個人資料</button>
@@ -113,7 +113,7 @@
         		<button class="nav-link" id="Calendar-tab" data-bs-toggle="tab" data-bs-target="#Calendar" type="button" role="tab" aria-controls="Calendar" aria-selected="false">日曆</button>
       		</li>
 		</ul>
-		<div class="tab-content" id="myTabContent">
+		<div class="tab-content">
 			<div class="tab-pane fade show active" id="Profile" role="tabpanel" aria-labelledby="home-tab">
 				<h3>Profile</h3>
 				<div class="row">
@@ -130,22 +130,22 @@
 								<tr>
 									<th scope="row">1</th>
 									<td>userId</td>
-									<td><span id="userId"></span></td>
+									<td>(( inputs['user_id'] ))</td>
 								</tr>
 								<tr>
 									<th scope="row">2</th>
 									<td>displayName</td>
-									<td><span id="displayName"></span></td>
+									<td>(( display_name ))</td>
 								</tr>
 								<tr>
 									<th scope="row">3</th>
 									<td>pictureUrl</td>
-									<td><span id="pictureUrl"></span></td>
+									<td>(( picture_url ))</td>
 								</tr>
 								<tr>
 									<th scope="row">4</th>
 									<td>statusMessage</td>
-									<td><span id="statusMessage"></span></td>
+									<td>(( status_msg ))</td>
 								</tr>
 							</tbody>
 						</table>
@@ -213,7 +213,7 @@
 			</div>
 			<div class="tab-pane fade" id="Adjust" role="tabpanel" aria-labelledby="Adjust-tab">
 				<h3>Adjust</h3>
-				<h3>(( msg ))</h3>
+				<h3>(( inputs['user_id'] ))</h3>
 				<div class="row row-cols-1 row-cols-md-4 g-4">
 					<div class="col" v-for="a in arr" :key="a">
 						<div class="card">
@@ -254,24 +254,7 @@
 </body>
 <script type="module">
 	var liff_id = '{{ liff_id }}';
-	var user_id;
-	liff.init({
-		liffId: liff_id 
-	}).then(()=>{
-		if (!liff.isLoggedIn()) {
-			liff.login();
-		}
-		liff.getProfile().then(function (profile) {
-			user_id = profile.userId;
-			document.getElementById("userId").innerHTML = profile.userId;
-			document.getElementById("displayName").innerHTML = profile.displayName;
-			document.getElementById("pictureUrl").innerHTML = profile.pictureUrl;
-			document.getElementById("statusMessage").innerHTML = profile.statusMessage;
-		})
-	}).catch(error=>{
-		console.log('error', error);
-	})
-
+    
     function submitForm(dict){
         $.ajax({
 			url: "/fill-form",
@@ -288,10 +271,31 @@
 		})
     }
     
-    var Form = Vue.createApp({
+	function searchRoutine(){
+		$.ajax({
+			url: "/search-routine",
+			method: "POST",
+			contentType: "application/json",
+			data: JSON.stringify({"user_id": "U1100043733aea416a3c3055dfa4accdf"}),
+			async: false,
+			success: function (data) {
+				console.log(data);
+				return data;
+			},
+			error: function (jqxhr, textStatus, errorThrown) {
+				alert("error: " + textStatus);
+				return -1;
+			}
+		})
+	}
+    
+    var app = Vue.createApp({
         delimiters: ["((", "))"], // otherwise original delimiter of Vue would conflict with that of Jinja
         data() {
             return {
+                display_name:'',
+                picture_url:'',
+                status_msg:'',
                 index: [],
                 inputs: {
                     'user_id':'',
@@ -302,12 +306,29 @@
                     'begindate':'',
                     'enddate':'',
                     'timepickers': []
-                }
+                },
+				arr: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
             }
+        },
+        mounted() {
+            liff.init({
+		        liffId: liff_id 
+        	}).then(()=>{
+        		if (!liff.isLoggedIn()) {
+        			liff.login();
+        		}
+        		liff.getProfile().then((profile) => {
+                    this.inputs['user_id'] = profile.userId;
+                    this.display_name = profile.displayName;
+                    this.picture_url = profile.pictureUrl;
+                    this.status_msg = profile.statusMessage;
+        		})
+        	}).catch(error=>{
+        		console.log('error', error);
+        	})
         },
         methods: {
             fillForm() {
-                this.inputs['user_id'] = user_id;
                 submitForm(this.inputs);
             },
             push(){
@@ -332,36 +353,5 @@
             }
         }
     });
-    Form.mount('#Form');
-    
-	function searchRoutine(){
-        console.log(user_id);
-		$.ajax({
-			url: "/search-routine",
-			method: "POST",
-			contentType: "application/json",
-			data: JSON.stringify({"user_id": "U1100043733aea416a3c3055dfa4accdf"}),
-			async: false,
-			success: function (data) {
-				console.log(data);
-				return data;
-			},
-			error: function (jqxhr, textStatus, errorThrown) {
-				alert("error: " + textStatus);
-				return -1;
-			}
-		})
-	}
-
-	var Adjust = Vue.createApp({
-		delimiters: ["((", "))"], // otherwise original delimiter of Vue would conflict with that of Jinja
-		data() {
-			return {
-				msg: user_id,
-				arr: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-				inputs: []
-			}
-		}
-	});
-	Adjust.mount('#Adjust');
+    app.mount('#app');
 </script>
