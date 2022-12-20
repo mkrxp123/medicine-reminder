@@ -337,7 +337,7 @@
 			        url: "/search-routine",
         			method: "POST",
         			contentType: "application/json",
-        			data: JSON.stringify({"user_id": "U1100043733aea416a3c3055dfa4accdf"}),
+        			data: JSON.stringify({"user_id": this.inputs['user_id']}),
         			async: false,
         			success: (data) => {
         				console.log(data);

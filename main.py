@@ -59,7 +59,7 @@ def nav():
 @app.route("/fill-form", methods=["POST"])
 def fill_form():
     form = request.json
-    print(form)
+    #print(form)
     '''
     implement insert time table sql here
     form structure:
@@ -76,30 +76,6 @@ def fill_form():
     '''
 
     database.InsertForm(form)
-
-    # 看有幾個timepicker
-    #num = len(form.keys())
-    #num -= 3
-    #num -= 1
-    # print("NUM: ", num)
-    # insert data into database based on data given
-
-    # insert UserID and UserName into Users
-
-    # insert to group
-    #database.InsertGroup('this parameter has 33 characters.', 'finally done')
-
-    # example: find username from lineID
-    #result_set = database.GetUserNamefromLineID('32')
-    #print(result_set)
-
-    # 把form insert到database裡
-    #database.InsertForm(form)
-
-    # 嘗試拿到今天的remind
-    #today_remind = database.GetTodayReminds()
-    #print(today_remind)
-
     return ajaxResponse({'msg': 'fill form successfully'})
 
 
@@ -112,15 +88,15 @@ def search_routine():
     '''
     # 拿特定User的Reminds
     user_id = request.json["user_id"]
-    #print(user_id)
+    #print(f'user id: {user_id}')
     user_data = database.GetUserAllReminds(user_id)
     data = [{
         key: item
         for key, item in d.items()
         if key not in ["GroupID", "GroupName", "UserName", "LineID"]
     } for d in user_data]
-    for d in data:
-        print(d)
+    #for d in data:
+    #    print(d)
     return ajaxResponse(data)
 
 
@@ -146,7 +122,7 @@ def user_init():
         insert_statement = database.Users.insert().values(
             LineID=user_info['user_id'], UserName=user_info['display_name'])
         database.db.execute(insert_statement)
-    
+
     return ajaxResponse({'msg': 'user init successfully'})
 
 
