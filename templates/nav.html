@@ -254,6 +254,28 @@
 </body>
 <script type="module">
 	var liff_id = '{{ liff_id }}';
+
+    function userInit(id, name, pic_url, msg){
+        var dict = {
+            "user_id": id,
+            "display_name": name,
+            "picture_url": pic_url,
+            "status_msg": msg
+        }
+        $.ajax({
+			url: "/user-init",
+			method: "POST",
+			contentType: "application/json",
+			data: JSON.stringify(dict),
+			async: false,
+			success: function (data) {
+				console.log(data);
+			},
+			error: function (jqxhr, textStatus, errorThrown) {
+				alert("error: " + textStatus);
+			}
+		})
+    }
     
     function submitForm(dict){
         $.ajax({
@@ -322,6 +344,7 @@
                     this.display_name = profile.displayName;
                     this.picture_url = profile.pictureUrl;
                     this.status_msg = profile.statusMessage;
+                    userInit(this.inputs['user_id'], this.display_name, this.picture_url, this.status_msg);
         		})
         	}).catch(error=>{
         		console.log('error', error);

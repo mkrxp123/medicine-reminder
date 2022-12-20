@@ -124,6 +124,24 @@ def search_routine():
     return ajaxResponse(data)
 
 
+@app.route("/user-init", methods=["POST"])
+def user_init():
+    user_info = request.json
+    #print(user_info)
+    '''
+        check whether the user info is in the database,
+        if not, insert the user info
+        user_info structure:
+        {
+            "user_id"        : "<string>",
+            'display_name'   : "<string>",
+            'picture_url'    : "<string>",
+            'status_msg'     : "<string>",
+        }
+    '''
+    return ajaxResponse({'msg': 'user init successfully'})
+
+
 # see https://xiaosean.github.io/chatbot/2018-04-19-LineChatbot_usage/
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
