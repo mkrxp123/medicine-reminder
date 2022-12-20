@@ -155,7 +155,7 @@
 			<div class="tab-pane fade" id="Form" role="tabpanel" aria-labelledby="Form-tab">
 				<h3>Form</h3>
                 (( inputs ))
-				<form class="form-horizontal" id="form" @submit.prevent="fillForm()">
+				<form class="form-horizontal" id="form" @submit.prevent="fillForm(this.inputs)">
 					<div class="col-sm-2">
 						<input type="radio" id="take" name="med" value="take" v-model="inputs['med']" @click="resetHospital" checked>
 						<label for="take">吃藥</label>
@@ -218,7 +218,7 @@
 						<div class="card">
 							<div class="card-body">
 								<h5 class="card-title">(( routine['Title'] ))</h5>
-								<button type="button" class="btn btn-primary" data-bs-toggle="modal" :data-bs-target="'#modal' + index">
+								<button type="button" class="btn btn-primary" data-bs-toggle="modal" :data-bs-target="'#modal' + index" @click="tempRoutine(index)">
 									時間表
 								</button>
 								
@@ -232,15 +232,15 @@
 											</div>
 											<div class="modal-body">
                                                 <form class="form-horizontal" @submit.prevent="changeRoutine()">
-                                                    <div class="form-group" id="routine_form">
+                                                    <div class="form-group">
                                                         <div class="row">
                                                             <div class="col-sm-2">
                                                                 <label>輸入診所</label>
-                                                                <input type="text" class="form-control" name="hospital" placeholder="Enter Hospital" v-model="routine['Hospital']">
+                                                                <input type="text" class="form-control" name="hospital" placeholder="Enter Hospital" v-model="temp_routine['Hospital']">
                                                             </div>
                                                             <div class="col-sm-2">
                                                                 <label>輸入標題</label>
-                                                                <input type="text" class="form-control" name="title" placeholder="Enter Title" required v-model="routine['Title']">
+                                                                <input type="text" class="form-control" name="title" placeholder="Enter Title" required v-model="temp_routine['Title']">
                                                             </div>
                                                             <div class="col-sm-2">
                                                                 <label>上傳圖片</label>
@@ -250,11 +250,11 @@
                                                         <div class="row">
 						                                    <div class="col-sm-2">
                                                                 <label for="begindate">起始時間</label>
-                                    							<input type="date" class="form-control" name="begindate" required v-model="routine['begindate']">
+                                    							<input type="date" class="form-control" name="begindate" required v-model="temp_routine['begindate']">
                                     						</div>
                                     						<div class="col-sm-2">
                                     						    <label for="enddate">結束時間</label>
-                                    							<input type="date" class="form-control" name="enddate" v-model="routine['enddate']">
+                                    							<input type="date" class="form-control" name="enddate" v-model="temp_routine['enddate']">
                                     						</div>
                                                         </div>
                                                         <table class="table table-striped">
@@ -265,23 +265,25 @@
                                 								</tr>
                                 							</thead>
                                 							<tbody>
-                                                                <tr v-for="(remind, i) in routine['RemindTime']" :key="remind">
+                                                                <tr v-for="(remind, i) in temp_routine['RemindTime']" :key="remind">
                                                                     <th scope="row">(( i + 1 ))</th>
-                                                                    <td><input type="time" :name="'timepicker' + i" v-model="routine['RemindTime'][i]" required></td>
+                                                                    <td><input type="time" :name="'timepicker' + i" v-model="temp_routine['RemindTime'][i]" required></td>
                                                                 </tr>
                                 							</tbody>
                                 						</table>
                                                     </div>
                                                     <div class="form-group">
-                                                        <button type="button" style="margin-left: 12px;" class="btn btn-secondary">增加行程</button>
-        							                    <button type="button" style="margin-left: 12px;" class="btn btn-warning">減少行程</button>
-                            							<button type="button" style="margin-left: 12px;" class="btn btn-danger">重置</button>
+                                                        <button type="button" style="margin-left: 12px;" class="btn btn-secondary" @click="push(index)">增加行程</button>
+        							                    <button type="button" style="margin-left: 12px;" class="btn btn-warning" @click="pop(index)">減少行程</button>
+                            							<button type="button" style="margin-left: 12px;" class="btn btn-danger" @click="reset(index)">重置</button>
                                                     </div>
                                                 </form>
-												(( routine ))
+												<div>(( routine ))</div>
+												<div>(( temp_routine ))</div>
 											</div>
 											<div class="modal-footer">
 												<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+												<button type="button" class="btn btn-info" @click="tempRoutine(index)">復原</button>
 												<button type="button" class="btn btn-primary">更改</button>
 											</div>
 										</div>
@@ -340,7 +342,8 @@
                     'enddate':'',
                     'timepickers': []
                 },
-				routines: []
+				routines: [],
+                temp_routine:{}
             }
         },
         mounted() {
@@ -365,12 +368,12 @@
         // [ { "Checked": "", "GetMedicine": true, "Hospital": "hospital_test6", "PhoneNumber": "", "Picture": "", "RemindDate": "2022-11-30", "RemindTime": [ "16:04", "16:00", "14:00", "03:00", "17:00", "00:00", "00:59", "00:01", "00:02", "00:03", "21:45" ], "ReminderID": 5, "Title": "title_test6", "begindate": "2022-11-29", "enddate": "2022-12-30" } ]
         
         methods: {
-            fillForm() {
+            fillForm(dict) {
                 $.ajax({
 			        url: "/fill-form",
         			method: "POST",
         			contentType: "application/json",
-        			data: JSON.stringify(this.inputs),
+        			data: JSON.stringify(dict),
         			async: false,
         			success: function (data) {
         				console.log(data);
@@ -397,17 +400,21 @@
         			}
         		})
             },
-            changeRoutine(){
+            changeRoutine(index){
                 
             },
-            push(){
-                
+            tempRoutine(index){
+                this.temp_routine = JSON.parse(JSON.stringify(this.routines[index]));    // copy by value
             },
-            pop(){
-                
+            push(index){
+                console.log(index);
+                this.temp_routine['RemindTime'].push('');
             },
-            reset(){
-                
+            pop(index){
+                this.temp_routine['RemindTime'].pop();
+            },
+            reset(index){
+                this.temp_routine['RemindTime'] = [];
             },
             resetHospital(){
                 this.inputs["hospital"] = "";
