@@ -107,7 +107,7 @@
         		<button class="nav-link" id="Form-tab" data-bs-toggle="tab" data-bs-target="#Form" type="button" role="tab" aria-controls="Form" aria-selected="false">填寫表單</button>
 			</li>
 			<li class="nav-item" role="presentation">
-        		<button class="nav-link" id="Adjust-tab" data-bs-toggle="tab" data-bs-target="#Adjust" type="button" role="tab" aria-controls="Adjust" aria-selected="false" @click="searchRoutine()">調整時間</button>
+        		<button class="nav-link" id="Adjust-tab" data-bs-toggle="tab" data-bs-target="#Adjust" type="button" role="tab" aria-controls="Adjust" aria-selected="false">調整時間</button>
       		</li>
 			<li class="nav-item" role="presentation">
         		<button class="nav-link" id="Calendar-tab" data-bs-toggle="tab" data-bs-target="#Calendar" type="button" role="tab" aria-controls="Calendar" aria-selected="false">日曆</button>
@@ -225,7 +225,7 @@
 								
 								<!-- Modal -->
 								<div class="modal fade" :id="'modal' + index" tabindex="-1" :aria-labelledby="'Label' + index" aria-hidden="true">
-									<div class="modal-dialog">
+									<div class="modal-dialog modal-xl">
 										<div class="modal-content">
 											<div class="modal-header">
 												<h5 class="modal-title" :id="'Label' + index">時間表</h5>
@@ -311,6 +311,7 @@
                     this.picture_url = profile.pictureUrl;
                     this.status_msg = profile.statusMessage;
                     userInit(this.inputs['user_id'], this.display_name, this.picture_url, this.status_msg);
+                    this.searchRoutine();
         		})
         	}).catch(error=>{
         		console.log('error', error);
