@@ -315,7 +315,7 @@
 			method: "POST",
 			contentType: "application/json",
 			data: JSON.stringify(dict),
-			async: false,
+			async: true,
 			success: function (data) {
 				console.log(data);
 			},
@@ -374,7 +374,7 @@
         			method: "POST",
         			contentType: "application/json",
         			data: JSON.stringify(dict),
-        			async: false,
+        			async: true,
         			success: function (data) {
         				console.log(data);
         			},
@@ -390,7 +390,7 @@
         			method: "POST",
         			contentType: "application/json",
         			data: JSON.stringify({"user_id": this.inputs['user_id']}),
-        			async: false,
+        			async: true,
         			success: (data) => {
         				console.log(data);
                         this.routines = data;
