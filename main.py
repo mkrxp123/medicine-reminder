@@ -91,12 +91,12 @@ def search_routine():
     #print(f'user id: {user_id}')
     user_data = database.GetUserAllReminds(user_id)
     data = [{
-        key: item
+        key: item if item is not None else ''
         for key, item in d.items()
         if key not in ["GroupID", "GroupName", "UserName", "LineID"]
     } for d in user_data]
-    #for d in data:
-    #    print(d)
+    for d in data:
+        print(d)
     return ajaxResponse(data)
 
 
