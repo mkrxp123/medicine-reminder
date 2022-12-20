@@ -117,14 +117,6 @@ class Database:
     group_id = None
     phone_number = ''
 
-    select_statement = self.Users.select().where(
-      self.Users.c.LineID == form['user_id'])
-    check_exist = self.db.execute(select_statement).fetchall()
-    if len(check_exist) == 0:
-      insert_statement = self.Users.insert().values(LineID=form['user_id'],
-                                                    UserName='test6')
-    self.db.execute(insert_statement)
-
     # 取得給reminder的實際數值
     if form['med'] == 'take':
       get_med = False
