@@ -139,6 +139,14 @@ def user_init():
             'status_msg'     : "<string>",
         }
     '''
+    select_statement = database.Users.select().where(
+        database.Users.c.LineID == user_info['user_id'])
+    check_exist = database.db.execute(select_statement).fetchall()
+    if len(check_exist) == 0:
+        insert_statement = database.Users.insert().values(
+            LineID=user_info['user_id'], UserName=user_info['display_name'])
+        database.db.execute(insert_statement)
+    
     return ajaxResponse({'msg': 'user init successfully'})
 
 
