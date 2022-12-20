@@ -107,7 +107,7 @@
         		<button class="nav-link" id="Form-tab" data-bs-toggle="tab" data-bs-target="#Form" type="button" role="tab" aria-controls="Form" aria-selected="false">填寫表單</button>
 			</li>
 			<li class="nav-item" role="presentation">
-        		<button class="nav-link" id="Adjust-tab" data-bs-toggle="tab" data-bs-target="#Adjust" type="button" role="tab" aria-controls="Adjust" aria-selected="false">調整時間</button>
+        		<button class="nav-link" id="Adjust-tab" data-bs-toggle="tab" data-bs-target="#Adjust" type="button" role="tab" aria-controls="Adjust" aria-selected="false" @click="searchRoutine()">調整時間</button>
       		</li>
 			<li class="nav-item" role="presentation">
         		<button class="nav-link" id="Calendar-tab" data-bs-toggle="tab" data-bs-target="#Calendar" type="button" role="tab" aria-controls="Calendar" aria-selected="false">日曆</button>
@@ -213,26 +213,26 @@
 			</div>
 			<div class="tab-pane fade" id="Adjust" role="tabpanel" aria-labelledby="Adjust-tab">
 				<h3>Adjust</h3>
-				<h3>(( inputs['user_id'] ))</h3>
+				(( routines ))
 				<div class="row row-cols-1 row-cols-md-4 g-4">
-					<div class="col" v-for="a in arr" :key="a">
+					<div class="col" v-for="(routine, index) in routines" :key="routine">
 						<div class="card">
 							<div class="card-body">
-								<h5 class="card-title">Card title</h5>
-								<button type="button" class="btn btn-primary" data-bs-toggle="modal" :data-bs-target="'#modal' + a">
+								<h5 class="card-title">(( routine['Title'] ))</h5>
+								<button type="button" class="btn btn-primary" data-bs-toggle="modal" :data-bs-target="'#modal' + index">
 									時間表
 								</button>
 								
 								<!-- Modal -->
-								<div class="modal fade" :id="'modal' + a" tabindex="-1" :aria-labelledby="'Label' + a" aria-hidden="true">
+								<div class="modal fade" :id="'modal' + index" tabindex="-1" :aria-labelledby="'Label' + index" aria-hidden="true">
 									<div class="modal-dialog">
 										<div class="modal-content">
 											<div class="modal-header">
-												<h5 class="modal-title" :id="'Label' + a">時間表</h5>
+												<h5 class="modal-title" :id="'Label' + index">時間表</h5>
 												<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 											</div>
 											<div class="modal-body">
-												(( a ))
+												(( routine ))
 											</div>
 											<div class="modal-footer">
 												<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
@@ -277,40 +277,6 @@
 		})
     }
     
-    function submitForm(dict){
-        $.ajax({
-			url: "/fill-form",
-			method: "POST",
-			contentType: "application/json",
-			data: JSON.stringify(dict),
-			async: false,
-			success: function (data) {
-				console.log(data);
-			},
-			error: function (jqxhr, textStatus, errorThrown) {
-				alert("error: " + textStatus);
-			}
-		})
-    }
-    
-	function searchRoutine(){
-		$.ajax({
-			url: "/search-routine",
-			method: "POST",
-			contentType: "application/json",
-			data: JSON.stringify({"user_id": "U1100043733aea416a3c3055dfa4accdf"}),
-			async: false,
-			success: function (data) {
-				console.log(data);
-				return data;
-			},
-			error: function (jqxhr, textStatus, errorThrown) {
-				alert("error: " + textStatus);
-				return -1;
-			}
-		})
-	}
-    
     var app = Vue.createApp({
         delimiters: ["((", "))"], // otherwise original delimiter of Vue would conflict with that of Jinja
         data() {
@@ -329,7 +295,7 @@
                     'enddate':'',
                     'timepickers': []
                 },
-				arr: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+				routines: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
             }
         },
         mounted() {
@@ -352,7 +318,35 @@
         },
         methods: {
             fillForm() {
-                submitForm(this.inputs);
+                $.ajax({
+			        url: "/fill-form",
+        			method: "POST",
+        			contentType: "application/json",
+        			data: JSON.stringify(this.inputs),
+        			async: false,
+        			success: function (data) {
+        				console.log(data);
+        			},
+        			error: function (jqxhr, textStatus, errorThrown) {
+        				alert("error: " + textStatus);
+        			}
+        		})
+            },
+            searchRoutine(){
+                $.ajax({
+			        url: "/search-routine",
+        			method: "POST",
+        			contentType: "application/json",
+        			data: JSON.stringify({"user_id": "U1100043733aea416a3c3055dfa4accdf"}),
+        			async: false,
+        			success: (data) => {
+        				console.log(data);
+                        this.routines = data;
+        			},
+        			error: function (jqxhr, textStatus, errorThrown) {
+        				alert("error: " + textStatus);
+        			}
+        		})
             },
             push(){
                 this.index.push(this.index.length + 1);
