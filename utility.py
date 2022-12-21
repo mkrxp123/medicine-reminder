@@ -42,11 +42,12 @@ class Database:
       self.Reminders = Table('Reminders', self.meta, Column('Title', String),
                              Column('ReminderID', Integer),
                              Column('UserName', String),
-                             Column('Picture', LargeBinary, nullable=True),
                              Column('Hospital', String),
                              Column('GroupID', String),
                              Column('GetMedicine', Boolean),
-                             Column('PhoneNumber', String))
+                             Column('PhoneNumber', String),
+                             Column('Format', String),
+                             Column('Picture', String))
       self.RemindGroups = Table('RemindGroups', self.meta,
                                 Column('GroupID', String),
                                 Column('GroupName', String))
@@ -76,14 +77,15 @@ class Database:
     temp = self.db.execute(select_statement).fetchall()
     return temp[0][1]
 
-  def InsertReminder(self, title, rid, name, pic, hospital, gid, type):
+  def InsertReminder(self, title, rid, name, pic, hospital, gid, type, formatt):
     insert_statement = self.Reminders.insert().values(Title=title,
                                                       ReminderID=rid,
                                                       UserName=name,
                                                       Picture=pic,
                                                       Hospital=hospital,
                                                       GroupID=gid,
-                                                      GetMedicine=type)
+                                                      GetMedicine=type,
+                                                      Format=formatt)
     self.db.execute(insert_statement)
 
   def GetReminderFromReminderID(self, id):
@@ -109,7 +111,8 @@ class Database:
     # 統整參數
     get_med = True
     title = ''
-    pic = None
+    pic = ''
+    formatt = '' 
     begin_date_str = ''
     end_date_str = ''
     user_name = ''
@@ -135,7 +138,8 @@ class Database:
       Hospital=hospital,
       GroupID=group_id,
       GetMedicine=get_med,
-      PhoneNumber=phone_number)
+      PhoneNumber=phone_number,
+      Format=formatt)
     self.db.execute(insert_statement)
 
     # 取得給remindTime的數值
