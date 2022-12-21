@@ -100,6 +100,29 @@ def search_routine():
     return ajaxResponse(data)
 
 
+@app.route("/change-routine", methods=["POST"])
+def change_routine():
+    routine = request.json
+    '''
+        update routine
+        the sturcture should be similar to the retrun value of function search_routine
+        routine example (cuz I am lazy to write sturcture detail ;) )
+        [ { "Checked": "", "GetMedicine": true, "Hospital": "hospital_test6", "PhoneNumber": "", "Picture": "", "RemindDate": "2022-11-30", "RemindTime": [ "16:04", "16:00", "14:00", "03:00", "17:00", "00:00", "00:59", "00:01", "00:02", "00:03", "21:45" ], "ReminderID": 5, "Title": "title_test6", "begindate": "2022-11-29", "enddate": "2022-12-30" } ]
+    '''
+
+    return ajaxResponse({'msg': 'update routine successfully'})
+
+
+@app.route("/remove-routine", methods=["POST"])
+def remove_routine():
+    reminder_id = request.json["ReminderID"]
+    '''
+        remove routine
+    '''
+
+    return ajaxResponse({'msg': 'remove routine successfully'})
+
+
 @app.route("/user-init", methods=["POST"])
 def user_init():
     user_info = request.json

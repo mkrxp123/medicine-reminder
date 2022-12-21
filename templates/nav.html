@@ -218,9 +218,8 @@
 						<div class="card">
 							<div class="card-body">
 								<h5 class="card-title">(( routine['Title'] ))</h5>
-								<button type="button" class="btn btn-primary" data-bs-toggle="modal" :data-bs-target="'#modal' + index" @click="tempRoutine(index)">
-									時間表
-								</button>
+								<button type="button" class="btn btn-primary" data-bs-toggle="modal" :data-bs-target="'#modal' + index" @click="tempRoutine(index)">時間表</button>
+								<button type="button" style="margin-left: 12px;" class="btn btn-danger" @click="removeRoutine(routine['ReminderID'])">刪除</button>
 								
 								<!-- Modal -->
 								<div class="modal fade" :id="'modal' + index" tabindex="-1" :aria-labelledby="'Label' + index" aria-hidden="true">
@@ -234,7 +233,7 @@
                                                 <form class="form-horizontal" @submit.prevent="changeRoutine()">
                                                     <div class="form-group">
                                                         <div class="row">
-                                                            <div class="col-sm-2">
+                                                            <div class="col-sm-2"  v-if="routine['GetMedicine'] == true">
                                                                 <label>輸入診所</label>
                                                                 <input type="text" class="form-control" name="hospital" placeholder="Enter Hospital" v-model="temp_routine['Hospital']">
                                                             </div>
@@ -273,9 +272,11 @@
                                 						</table>
                                                     </div>
                                                     <div class="form-group">
-                                                        <button type="button" style="margin-left: 12px;" class="btn btn-secondary" @click="push(index)">增加行程</button>
-        							                    <button type="button" style="margin-left: 12px;" class="btn btn-warning" @click="pop(index)">減少行程</button>
+                                                        <button type="button" style="margin-left: 12px;" class="btn btn-secondary" @click="push(index)">增加</button>
+        							                    <button type="button" style="margin-left: 12px;" class="btn btn-warning" @click="pop(index)">減少</button>
                             							<button type="button" style="margin-left: 12px;" class="btn btn-danger" @click="reset(index)">重置</button>
+                                                        <button type="button"style="margin-left: 12px;"  class="btn btn-info" @click="tempRoutine(index)">復原</button>
+                                                        <button type="submit" style="margin-left: 12px;" class="btn btn-primary" ata-bs-dismiss="modal">更改</button>
                                                     </div>
                                                 </form>
 												<div>(( routine ))</div>
@@ -283,8 +284,6 @@
 											</div>
 											<div class="modal-footer">
 												<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
-												<button type="button" class="btn btn-info" @click="tempRoutine(index)">復原</button>
-												<button type="button" class="btn btn-primary">更改</button>
 											</div>
 										</div>
 									</div>
@@ -293,6 +292,7 @@
 						</div>
 					</div>
 				</div>
+                <hr class="in view">
 			</div>
 			<div class="tab-pane fade in active" id="Calendar" role="tabpanel" aria-labelledby="Calendar-tab">
 				<div id="calendar"></div>
@@ -375,14 +375,14 @@
         			contentType: "application/json",
         			data: JSON.stringify(dict),
         			async: true,
-        			success: function (data) {
+        			success: (data) => {
         				console.log(data);
+                        this.searchRoutine();
         			},
         			error: function (jqxhr, textStatus, errorThrown) {
         				alert("error: " + textStatus);
         			}
         		})
-                this.searchRoutine();
             },
             searchRoutine(){
                 $.ajax({
@@ -400,14 +400,42 @@
         			}
         		})
             },
-            changeRoutine(index){
-                
+            changeRoutine(){
+                $.ajax({
+			        url: "/change-routine",
+        			method: "POST",
+        			contentType: "application/json",
+        			data: JSON.stringify(this.temp_routine),
+        			async: true,
+        			success: (data) => {
+        				console.log(data);
+                        this.searchRoutine();
+        			},
+        			error: function (jqxhr, textStatus, errorThrown) {
+        				alert("error: " + textStatus);
+        			}
+        		})
             },
             tempRoutine(index){
                 this.temp_routine = JSON.parse(JSON.stringify(this.routines[index]));    // copy by value
             },
+            removeRoutine(id){
+                $.ajax({
+			        url: "/remove-routine",
+        			method: "POST",
+        			contentType: "application/json",
+        			data: JSON.stringify({"ReminderID": id}),
+        			async: true,
+        			success: (data) => {
+        				console.log(data);
+                        this.searchRoutine();
+        			},
+        			error: function (jqxhr, textStatus, errorThrown) {
+        				alert("error: " + textStatus);
+        			}
+        		})
+            },
             push(index){
-                console.log(index);
                 this.temp_routine['RemindTime'].push('');
             },
             pop(index){
