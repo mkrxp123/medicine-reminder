@@ -99,6 +99,7 @@
 		</div>
 	</nav>
 	<div class="container" id="app">
+        <button type="button" class="btn btn-info" @click="debug=!debug">Toggle debug info</button>
 		<ul class="nav nav-tabs" id="myTab" role="tablist">
 			<li class="nav-item" role="presentation">
         		<button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#Profile" type="button" role="tab" aria-controls="home" aria-selected="true">個人資料</button>
@@ -214,7 +215,7 @@
 			</div>
 			<div class="tab-pane fade" id="Adjust" role="tabpanel" aria-labelledby="Adjust-tab">
 				<h3>Adjust</h3>
-				(( routines ))
+                <div v-if="debug">(( routines ))</div>
 				<div class="row row-cols-1 row-cols-md-4 g-4">
 					<div class="col" v-for="(routine, index) in routines" :key="routine">
 						<div class="card">
@@ -281,8 +282,8 @@
                                                         <button type="submit" style="margin-left: 12px;" class="btn btn-primary" ata-bs-dismiss="modal">更改</button>
                                                     </div>
                                                 </form>
-												<div>(( routine ))</div>
-												<div>(( temp_routine ))</div>
+												<div v-if="debug">(( routine ))</div>
+												<div v-if="debug">(( temp_routine ))</div>
 											</div>
 											<div class="modal-footer">
 												<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
@@ -326,11 +327,12 @@
 			}
 		})
     }
-    var debug = true;
+    
     var app = Vue.createApp({
         delimiters: ["((", "))"], // otherwise original delimiter of Vue would conflict with that of Jinja
         data() {
             return {
+                debug:true,
                 display_name:'',
                 picture_url:'',
                 status_msg:'',
