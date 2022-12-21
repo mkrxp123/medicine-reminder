@@ -128,6 +128,8 @@ class Database:
     end_date_str = form['enddate']
     user_name = self.GetUserNamefromLineID(form['user_id'])
     hospital = form['hospital']
+    pic = form['img']
+    formatt = form['format']
 
     # insert至reminder
     insert_statement = self.Reminders.insert().values(
