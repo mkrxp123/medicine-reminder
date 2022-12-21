@@ -154,7 +154,9 @@
 			</div>
 			<div class="tab-pane fade" id="Form" role="tabpanel" aria-labelledby="Form-tab">
 				<h3>Form</h3>
-                (( inputs ))
+                <div v-if="debug">
+                    (( inputs ))
+                </div>
 				<form class="form-horizontal" id="form" @submit.prevent="fillForm(this.inputs)">
 					<div class="col-sm-2">
 						<input type="radio" id="take" name="med" value="take" v-model="inputs['med']" @click="resetHospital" checked>
@@ -174,7 +176,7 @@
                             </div>
                             <div class="col-sm-2">
                                 <label for="img">上傳圖片</label>
-                                <input type="file" id="img" name="img" accept="image/*">
+                                <input type="file" id="img" name="img" accept="image/*" v-on:change="onFileChange">
                             </div>
                         </div>
                         <div class="row">
@@ -324,7 +326,7 @@
 			}
 		})
     }
-    
+    var debug = true;
     var app = Vue.createApp({
         delimiters: ["((", "))"], // otherwise original delimiter of Vue would conflict with that of Jinja
         data() {
@@ -338,6 +340,7 @@
                     'hospital':'',
                     'title':'',
                     'img':'',
+                    'format':'',
                     'begindate':'',
                     'enddate':'',
                     'timepickers': []
@@ -368,6 +371,15 @@
         // [ { "Checked": "", "GetMedicine": true, "Hospital": "hospital_test6", "PhoneNumber": "", "Picture": "", "RemindDate": "2022-11-30", "RemindTime": [ "16:04", "16:00", "14:00", "03:00", "17:00", "00:00", "00:59", "00:01", "00:02", "00:03", "21:45" ], "ReminderID": 5, "Title": "title_test6", "begindate": "2022-11-29", "enddate": "2022-12-30" } ]
         
         methods: {
+            onFileChange(event) {
+                var reader = new FileReader();
+                reader.readAsDataURL(event.target.files[0]);
+                reader.onload = () => {
+                    var matches = /data:image\/(.+);base64.(.+)/.exec(reader.result);
+                    this.inputs['format'] = matches[1];
+                    this.inputs['img'] = matches[2];
+                };
+            },
             fillForm(dict) {
                 $.ajax({
 			        url: "/fill-form",
