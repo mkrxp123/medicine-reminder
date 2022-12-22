@@ -82,3 +82,72 @@ WHERE public.\"Reminders\".\"GetMedicine\"=True
     self.conn.commit()
     cur.close()
     return list
+
+    
+  #抓取今日領藥資訊
+  def getTodayList(self):
+    #抓取資料
+    cursor = self.conn.cursor()
+    data = """SELECT public.\"Reminders\".\"UserName\", public.\"Reminders\".\"ReminderID\",   
+                       public.\"Reminders\".\"Title\", public.\"RemindTimes\".\"RemindDate\",     
+                       public.\"RemindTimes\".\"RemindTime\", public.\"Users\".\"LineID\",   
+                       public.\"Reminders\".\"Hospital\"
+                FROM (public.\"Users\" INNER JOIN public.\"Reminders\" 
+                ON public.\"Users\".\"UserName\"=public.\"Reminders\".\"UserName\")
+                INNER JOIN public.\"RemindTimes\" 
+                ON public.\"Reminders\".\"ReminderID\"=public.\"RemindTimes\".\"ReminderID\"
+                WHERE public.\"Reminders\".\"GetMedicine\"=True """
+    cursor.execute(data)
+    data2 = cursor.fetchall()
+
+    #取得日期
+    dt1 = datetime.utcnow().replace(tzinfo=timezone.utc)
+    dt2 = dt1.astimezone(timezone(timedelta(hours=8)))  # 轉換時區 -> 東八區
+    #dt3 = (dt2 + timedelta(hours = -1) + timedelta(seconds = -1*dt2.second)).strftime("%H:%M:%S")   #輸出比現在時間早半小時
+    today = dt2.strftime("%Y-%m-%d")
+    #print("today : ", today)
+
+    list = []
+    for r in data2:
+      if str(r[3]) == str(today):
+        list.append([str(r[0]), str(r[1]), str(r[2]), str(r[3]), str(r[4]), str(r[5]), str(r[6])])
+        #print(str(r[0]), str(r[1]), str(r[2]), str(r[3]), str(r[4]), str(r[5]), str(r[6]))
+
+    self.conn.commit()
+    cursor.close()
+    return list
+
+
+  #抓取明天的領藥資訊
+  def getTomorrowList(self):
+    #抓取資料
+    cursor = self.conn.cursor()
+    data = """SELECT public.\"Reminders\".\"UserName\", public.\"Reminders\".\"ReminderID\",   
+                       public.\"Reminders\".\"Title\", public.\"RemindTimes\".\"RemindDate\",     
+                       public.\"RemindTimes\".\"RemindTime\", public.\"Users\".\"LineID\",   
+                       public.\"Reminders\".\"Hospital\"
+                FROM (public.\"Users\" INNER JOIN public.\"Reminders\" 
+                ON public.\"Users\".\"UserName\"=public.\"Reminders\".\"UserName\")
+                INNER JOIN public.\"RemindTimes\" 
+                ON public.\"Reminders\".\"ReminderID\"=public.\"RemindTimes\".\"ReminderID\"
+                WHERE public.\"Reminders\".\"GetMedicine\"=True """
+    cursor.execute(data)
+    data2 = cursor.fetchall()
+
+    #取得日期
+    dt1 = datetime.utcnow().replace(tzinfo=timezone.utc)
+    dt2 = dt1.astimezone(timezone(timedelta(hours=8)))  # 轉換時區 -> 東八區
+    print("dt2: ", dt2)
+    #dt3 = (dt2 + timedelta(hours = -1) + timedelta(seconds = -1*dt2.second)).strftime("%H:%M:%S")   #輸出比現在時間早半小時
+    tomorrow = (dt2 + timedelta(days=1)).strftime("%Y-%m-%d %H:%M:00")   #輸出比現在時間早一天
+    print("tomorrow : ", tomorrow)
+
+    list = []
+    for r in data2: 
+      if str(r[3])+" "+str(r[4]) == str(tomorrow):
+        list.append([str(r[0]), str(r[1]), str(r[2]), str(r[3]), str(r[4]), str(r[5]), str(r[6])])
+        #print(str(r[0]), str(r[1]), str(r[2]), str(r[3]), str(r[4]), str(r[5]), str(r[6]))
+
+    self.conn.commit()
+    cursor.close()
+    return list

@@ -280,3 +280,199 @@ def pushremindMsg():
       line_bot_api.push_message(reLineID, template_message)
       remindList.pop(0)
   return True
+
+#push明天的領藥提醒
+def pushTomorrowGetMedicineTextMsg():
+  config = getKey()
+  line_bot_api = LineBotApi(config["Channel access token"])
+  postgres_manager = PostgresBaseManager()
+  List = postgres_manager.getTomorrowList()
+
+  if len(List):
+    for r in List:
+      reLineID = r[5]
+      msg = '明日請記得領藥!\n'+'提醒領藥者 : '+str(r[0])+'\n'+'領取藥品名稱 : '+str(r[2])+'\n'+'領取時間 : '+str(r[3])+' ' +str(r[4])+'\n'+'領取地點 : '+str(r[6])+'\n'+'祝您身體健康!'
+      line_bot_api.push_message(reLineID, TextSendMessage(text=msg))
+
+  return True
+
+#push今天的領藥提醒
+def pushTodayGetMedicineTextMsg():
+  config = getKey()
+  line_bot_api = LineBotApi(config["Channel access token"])
+  postgres_manager = PostgresBaseManager()
+  List = postgres_manager.getTodayList()
+
+  if len(List):
+    for r in List:
+      #取得日期
+      dt1 = datetime.utcnow().replace(tzinfo=timezone.utc)
+      dt2 = dt1.astimezone(timezone(timedelta(hours=8)))  # 轉換時區 -> 東八區
+      #輸出比現在時間早半小時
+      remindTime = (dt2 + timedelta(minutes = -30)).strftime("%Y-%m-%d %H:%M:00")   
+      print("remind time : ", remindTime)
+      reLineID = r[5]
+      
+      if str(r[3])+" "+str(r[4]) == str(remindTime): 
+        msg = '請記得於30分鐘後至診所/醫院領藥!\n'+'提醒領藥者 : '+str(r[0])+'\n'+'領取藥品名稱 : '+str(r[2])+'\n'+'領取時間 : '+str(r[3])+' ' +str(r[4])+'\n'+'領取地點 : '+str(r[6])+'\n'+'祝您身體健康!'
+        line_bot_api.push_message(reLineID, TextSendMessage(text=msg))
+
+  return True
+
+
+#push今天領要提醒的check box
+def pushGetMedicineFlexMsg():
+  config = getKey()
+  line_bot_api = LineBotApi(config["Channel access token"])
+  postgres_manager = PostgresBaseManager()
+  List = postgres_manager.getTodayList()
+  # send remind message
+  #print("List length: ", len(List))
+  #for r in List:
+    #print(str(r[0]), str(r[1]), str(r[2]), str(r[3]), str(r[4]), str(r[5]), str(r[6]))
+    
+  if len(List):
+    for r in List:
+      #取得日期
+      dt1 = datetime.utcnow().replace(tzinfo=timezone.utc)
+      dt2 = dt1.astimezone(timezone(timedelta(hours=8)))  # 轉換時區 -> 東八區
+      #輸出比現在時間早半小時
+      now = dt2.strftime("%Y-%m-%d %H:%M:00")   
+      print("now : ", now)
+      
+      reLineID = r[5] #要傳送提醒的使用者Line ID
+
+      if str(r[3])+" "+str(r[4]) == str(now):
+        line_bot_api.push_message(reLineID, FlexSendMessage(
+                  alt_text='記得至診所/醫院領取藥品~',
+                  contents={
+                    "type": "bubble",
+                    "body": {
+                      "type": "box",
+                      "layout": "vertical",
+                      "contents": [
+                        {
+                          "type": "text",
+                          "text": "今日領藥提醒",
+                          "weight": "bold",
+                          "size": "xl"
+                        },
+                        {
+                          "type": "box",
+                          "layout": "vertical",
+                          "margin": "lg",
+                          "spacing": "sm",
+                          "contents": [
+                            {
+                              "type": "box",
+                              "layout": "baseline",
+                              "spacing": "sm",
+                              "contents": [
+                                {
+                                  "type": "text",
+                                  "text": "提醒領藥者 : ",
+                                  "color": "#aaaaaa",
+                                  "size": "sm",
+                                  "flex": 0
+                                },
+                                {
+                                  "type": "text",
+                                  "text": str(r[0]),
+                                  "color": "#666666",
+                                  "size": "sm",
+                                  "flex": 2
+                                }
+                              ]
+                            },
+                            {
+                              "type": "box",
+                              "layout": "baseline",
+                              "spacing": "sm",
+                              "contents": [
+                                {
+                                  "type": "text",
+                                  "text": "領取藥品名稱 :",
+                                  "color": "#aaaaaa",
+                                  "size": "sm",
+                                  "flex": 0
+                                },
+                                {
+                                  "type": "text",
+                                  "text": str(r[2]),
+                                  "color": "#666666",
+                                  "size": "sm",
+                                  "flex": 5
+                                }
+                              ]
+                            },
+                            {
+                              "type": "box",
+                              "layout": "baseline",
+                              "spacing": "sm",
+                              "contents": [
+                                {
+                                  "type": "text",
+                                  "text": "領取時間 :",
+                                  "color": "#aaaaaa",
+                                  "size": "sm",
+                                  "flex": 0
+                                },
+                                {
+                                  "type": "text",
+                                  "text": str(r[3])+" "+str(r[4]),
+                                  "color": "#666666",
+                                  "size": "sm",
+                                  "flex": 5
+                                }
+                              ]
+                            },
+                            {
+                              "type": "box",
+                              "layout": "baseline",
+                              "spacing": "sm",
+                              "contents": [
+                                {
+                                  "type": "text",
+                                  "text": "領取地點 : ",
+                                  "color": "#aaaaaa",
+                                  "size": "sm",
+                                  "flex": 0
+                                },
+                                {
+                                  "type": "text",
+                                  "text": str(r[6]),
+                                  "color": "#666666",
+                                  "size": "sm",
+                                  "flex": 5
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "text": "祝您身體健康!"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "footer": {
+                      "type": "box",
+                      "layout": "vertical",
+                      "spacing": "sm",
+                      "contents": [
+                        {
+                          "type": "button",
+                          "style": "link",
+                          "height": "sm",
+                          "action": {
+                            "type": "message",
+                            "label": "已領取!",
+                            "text": "已領取"+str(r[2])
+                          }
+                        }
+                      ],
+                      "flex": 0
+                    }
+              }
+  ))
+  return True

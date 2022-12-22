@@ -2,7 +2,7 @@ from linebot import LineBotApi, WebhookHandler
 from linebot.models import TextSendMessage, ImageSendMessage, MessageEvent, TextMessage, TemplateSendMessage, ButtonsTemplate, PostbackAction, MessageTemplateAction, PostbackEvent, JoinEvent
 from linebot.exceptions import LineBotApiError, InvalidSignatureError
 from flask import Flask, request, abort, render_template, redirect, url_for, jsonify
-from utility import getKey, ajaxResponse, timetable, Database, pushremindMsg
+from utility import getKey, ajaxResponse, timetable, Database, pushremindMsg, pushGetMedicineFlexMsg, pushTomorrowGetMedicineTextMsg, pushTodayGetMedicineTextMsg
 from rich_menu import rich_menu
 import re
 from flask_sqlalchemy import SQLAlchemy
@@ -181,6 +181,75 @@ def handle_message(event):
     elif text == '說明':
       msg = TextSendMessage(text='使用說明:\n若要填寫提醒請輸入【網址】\n查看使用說明請輸入【說明】')
       line_bot_api.reply_message(event.reply_token, msg)
+    elif text == "客製化訊息":
+      line_bot_api.reply_message(event.reply_token, FlexSendMessage(
+                    alt_text='請問您使用這個line bot的原因?',
+                    contents={"type": "bubble",
+                              "body": {
+                                "type": "box",
+                                "layout": "vertical",
+                                "contents": [
+                                  {
+                                    "type": "text",
+                                    "text": "請問您使用這個line bot的原因?",
+                                    "weight": "bold",
+                                    "size": "md"
+                                  }
+                                ]
+                              },
+                              "footer": {
+                                "type": "box",
+                                "layout": "vertical",
+                                "spacing": "sm",
+                                "contents": [
+                                  {
+                                    "type": "button",
+                                    "style": "link",
+                                    "height": "sm",
+                                    "action": {
+                                      "type": "postback",
+                                      "label": "身體健康",
+                                      "data": "1"
+                                    }
+                                  },
+                                  {
+                                    "type": "button",
+                                    "style": "link",
+                                    "height": "sm",
+                                    "action": {
+                                      "type": "postback",
+                                      "label": "怕家人擔心",
+                                      "data": "2"
+                                    }
+                                  },
+                                  {
+                                    "type": "button",
+                                    "style": "link",
+                                    "height": "sm",
+                                    "action": {
+                                      "type": "postback",
+                                      "label": "需要他人關心",
+                                      "data": "3"
+                                    }
+                                  },
+                                  {
+                                    "type": "button",
+                                    "style": "link",
+                                    "height": "sm",
+                                    "action": {
+                                      "type": "postback",
+                                      "label": "經常搞混藥品",
+                                      "data": "4"
+                                    }
+                                  }
+                                ],
+                                "flex": 0
+                              }
+                            }
+    ))
+    else:
+      msg = TextSendMessage(text=f'https://liff.line.me/{config["Liff ID"]}')
+      line_bot_api.reply_message(event.reply_token, msg)
 
 
 @handler.add(PostbackEvent)
@@ -189,6 +258,7 @@ def handle_postback(event):  #吃藥提醒按鈕回傳值
       print(event.postback.data)
       msg = TextSendMessage(text="您已服用藥物!\n又是個健康的一天:D")
       line_bot_api.reply_message(event.reply_token, msg)
+    
 
 
 if __name__ == '__main__':
@@ -196,5 +266,8 @@ if __name__ == '__main__':
     postgres_manager.runServerPostgresdb()
     #remindList = postgres_manager.checkRemindTime()  #確認當前時間的提醒數量
     pushremindMsg()  #傳送吃藥提醒
+    pushTomorrowGetMedicineTextMsg() #傳送明天的領藥提醒
+    pushTodayGetMedicineTextMsg() #傳送30分鐘前的領藥提醒
+    pushGetMedicineFlexMsg() #傳送領藥提醒check box
     app.debug = True
     app.run(host='0.0.0.0', port=8080, use_reloader=False)
