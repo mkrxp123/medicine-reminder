@@ -216,6 +216,19 @@ class Database:
             "RemindTime"] not in records["RemindTime"]:
           records["RemindTime"].append(datas["RemindTime"])
     return final
+  
+  #查詢特定ReminderID的圖片
+  def GetRemindPicture(self, ID):
+    select_statement = '''select "Picture", "Format" from "Reminders" where "ReminderID" = {0}'''.format(ID)
+    pictures = []
+    base64 = ''
+    form = ''
+    result = self.db.execute(select_statement).fetchall()
+    for row in result:
+        pictures.append(dict(row))
+    base64 = pictures[0]["Picture"]
+    form = pictures[0]["Format"]
+    return base64, form
 
 
 def getKey():
