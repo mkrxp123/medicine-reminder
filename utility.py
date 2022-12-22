@@ -240,7 +240,7 @@ class Database:
         form = pictures[0]["Format"]
         return base64, form
     
-     def RemoveByReminderID(self, id):
+    def RemoveByReminderID(self, id):
         self.session.query(self.Reminders).filter(self.Reminders.c.ReminderID == id).delete()
         self.session.commit()
         self.session.query(self.RemindTimes).filter(self.RemindTimes.c.ReminderID == id).delete()
