@@ -137,6 +137,8 @@ def remove_routine():
         remove routine
     '''
 
+  database.RemoveByReminderID(reminder_id)
+  
   return ajaxResponse({'msg': 'remove routine successfully'})
 
 
