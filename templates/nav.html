@@ -22,22 +22,27 @@
         // ajax 從資料庫獲取資料
         async function init(){
             return new Promise(function(resolve){
+              	// alert('init');
                 liff.init({
             		liffId: '{{ liff_id }}' 
           		}).then(()=>{
+                  	// alert('log');
             		if (!liff.isLoggedIn()) {
               			liff.login();
             		}
 					liff.getProfile().then((profile) => {
 						user = profile.userId;
+            			// alert('get', user);
 						resolve(user);
 					})
 				}).catch(error=>{
-					console.log('error', error);
+					console.log('get error', error);
+          			// alert('error', error.message);
 				})});
         }
         async function post_api(userid) {
-          	console.log(userid)
+          	// console.log(userid)
+            // alert('json', userid)
             const url = '/search-routine';
             const response = await fetch(url, {
                 headers: {
@@ -78,7 +83,13 @@
         document.addEventListener('DOMContentLoaded', async function() {
 		// var eve = searchRoutine();
 		// console.log(eve);
-        let id = await init();
+        console.log(init().then(function(value){
+			console.log(value)
+		}));
+        let id = await init().then(function(value){
+			return (value)
+		});
+        // alert(id)
 		// console.log(id);
       	await post_api(id);
 		var calendarEl = document.getElementById('calendar');
@@ -88,13 +99,13 @@
 			editable: true,
 			events: event,
         // dateClick: function(info) {
-      //      var date = new Date(info.dateStr + 'T00:00:00');
-            //  alert(info.dateStr);
-      //      calendar.addEvent({
-      //            title: 'dynamic event',
-      //            start: date,
-      //            allDay: true
-      //          });
+      	//     var date = new Date(info.dateStr + 'T00:00:00');
+        //     alert(info.dateStr);
+        //     calendar.addEvent({
+        //         title: 'dynamic event',
+        //         start: date,
+        //         allDay: true
+        //     });
         //  // console.log(info.dateStr);
         // },
 			eventClick: function(info) {
