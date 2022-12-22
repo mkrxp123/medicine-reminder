@@ -12,6 +12,7 @@ import schedule
 import time
 from datetime import datetime, timezone, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
+import base64 as b64
 
 config = getKey()
 # uncomment after you finish database connection
@@ -30,37 +31,37 @@ sche.start()
 # 接收 LINE 的資訊
 @app.route("/callback", methods=['POST'])
 def callback():
-    signature = request.headers['X-Line-Signature']
+  signature = request.headers['X-Line-Signature']
 
-    body = request.get_data(as_text=True)
-    app.logger.info("Request body: " + body)
-    try:
-        handler.handle(body, signature)
-    except InvalidSignatureError:
-        abort(400)
+  body = request.get_data(as_text=True)
+  app.logger.info("Request body: " + body)
+  try:
+    handler.handle(body, signature)
+  except InvalidSignatureError:
+    abort(400)
 
-    return 'OK'
+  return 'OK'
 
 
 @app.route("/")
 def home():
-    '''
+  '''
     redirect user to nav.html
     '''
-    return redirect(url_for('nav'))
+  return redirect(url_for('nav'))
 
 
 @app.route("/nav")
 def nav():
-    liff_id = config["Liff ID"]
-    return render_template("nav.html", liff_id=liff_id)
+  liff_id = config["Liff ID"]
+  return render_template("nav.html", liff_id=liff_id)
 
 
 @app.route("/fill-form", methods=["POST"])
 def fill_form():
-    form = request.json
-    #print(form)
-    '''
+  form = request.json
+  #print(form)
+  '''
     implement insert time table sql here
     form structure:
     {
@@ -75,74 +76,75 @@ def fill_form():
     }
     '''
 
-    database.InsertForm(form)
-    return ajaxResponse({'msg': 'fill form successfully'})
+  database.InsertForm(form)
+  return ajaxResponse({'msg': 'fill form successfully'})
 
 
 @app.route("/search-img", methods=["GET"])
 def search_img():
-    reminder_id = int(request.args.get('ReminderID'))
-    print(reminder_id)
-    base64 = ''
-    form = ''
-    base64, form = database.GetRemindPicture(reminder_id)
-    print("base64: ", base64)
-    print("Format: ", form)
-    '''
+  reminder_id = int(request.args.get('ReminderID'))
+  print(reminder_id)
+  base64 = ''
+  form = ''
+  base64, form = database.GetRemindPicture(reminder_id)
+  # print("base64: ", base64)
+  print("Format: ", form)
+  # pic = b64.b64decode(base64.encode("ascii"))
+  '''
         Search images in the database by reminder_id
         Should return imgae data(base64) and format
     '''
-    
-    return ajaxResponse({'msg': reminder_id})
+  return f'<img src="data:image/{form};base64,{base64}">'
+  # return ajaxResponse({'msg': reminder_id})
 
 
 @app.route("/search-routine", methods=["POST"])
 def search_routine():
-    '''
+  '''
         tell html guys what to chage if you need extra input
         implement search routine function here
         then we will handle ajax things
     '''
-    # 拿特定User的Reminds
-    user_id = request.json["user_id"]
-    #print(f'user id: {user_id}')
-    user_data = database.GetUserAllReminds(user_id)
-    data = [{
-        key: item if item is not None else ''
-        for key, item in d.items()
-        if key not in ["GroupID", "GroupName", "UserName", "LineID"]
-    } for d in user_data]
-    return ajaxResponse(data)
+  # 拿特定User的Reminds
+  user_id = request.json["user_id"]
+  #print(f'user id: {user_id}')
+  user_data = database.GetUserAllReminds(user_id)
+  data = [{
+    key: item if item is not None else ''
+    for key, item in d.items()
+    if key not in ["GroupID", "GroupName", "UserName", "LineID"]
+  } for d in user_data]
+  return ajaxResponse(data)
 
 
 @app.route("/change-routine", methods=["POST"])
 def change_routine():
-    routine = request.json
-    '''
+  routine = request.json
+  '''
         update routine
         the sturcture should be similar to the retrun value of function search_routine
         routine example (cuz I am lazy to write sturcture detail ;) )
         [ { "Checked": "", "GetMedicine": true, "Hospital": "hospital_test6", "PhoneNumber": "", "Picture": "", "RemindDate": "2022-11-30", "RemindTime": [ "16:04", "16:00", "14:00", "03:00", "17:00", "00:00", "00:59", "00:01", "00:02", "00:03", "21:45" ], "ReminderID": 5, "Title": "title_test6", "begindate": "2022-11-29", "enddate": "2022-12-30" } ]
     '''
 
-    return ajaxResponse({'msg': 'update routine successfully'})
+  return ajaxResponse({'msg': 'update routine successfully'})
 
 
 @app.route("/remove-routine", methods=["POST"])
 def remove_routine():
-    reminder_id = request.json["ReminderID"]
-    '''
+  reminder_id = request.json["ReminderID"]
+  '''
         remove routine
     '''
 
-    return ajaxResponse({'msg': 'remove routine successfully'})
+  return ajaxResponse({'msg': 'remove routine successfully'})
 
 
 @app.route("/user-init", methods=["POST"])
 def user_init():
-    user_info = request.json
-    #print(user_info)
-    '''
+  user_info = request.json
+  #print(user_info)
+  '''
         check whether the user info is in the database,
         if not, insert the user info
         user_info structure:
@@ -153,121 +155,122 @@ def user_init():
             'status_msg'     : "<string>",
         }
     '''
-    select_statement = database.Users.select().where(
-        database.Users.c.LineID == user_info['user_id'])
-    check_exist = database.db.execute(select_statement).fetchall()
-    if len(check_exist) == 0:
-        insert_statement = database.Users.insert().values(
-            LineID=user_info['user_id'], UserName=user_info['display_name'])
-        database.db.execute(insert_statement)
+  select_statement = database.Users.select().where(
+    database.Users.c.LineID == user_info['user_id'])
+  check_exist = database.db.execute(select_statement).fetchall()
+  if len(check_exist) == 0:
+    insert_statement = database.Users.insert().values(
+      LineID=user_info['user_id'], UserName=user_info['display_name'])
+    database.db.execute(insert_statement)
 
-    return ajaxResponse({'msg': 'user init successfully'})
+  return ajaxResponse({'msg': 'user init successfully'})
+
 
 @handler.add(JoinEvent)
 def handle_join(event):
   msg = TextSendMessage(text='使用說明:\n若要填寫提醒請輸入【網址】\n查看使用說明請輸入【說明】')
   line_bot_api.reply_message(event.reply_token, msg)
 
+
 # see https://xiaosean.github.io/chatbot/2018-04-19-LineChatbot_usage/
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    # get user id when reply
-    user_id = event.source.user_id
-    print("user_id =", user_id)
-    text = event.message.text
-    if text == '網址':
-      msg = TextSendMessage(text=f'https://liff.line.me/{config["Liff ID"]}')
-      line_bot_api.reply_message(event.reply_token, msg)
-    elif text == '說明':
-      msg = TextSendMessage(text='使用說明:\n若要填寫提醒請輸入【網址】\n查看使用說明請輸入【說明】')
-      line_bot_api.reply_message(event.reply_token, msg)
-    elif text == "客製化訊息":
-      line_bot_api.reply_message(event.reply_token, FlexSendMessage(
-                    alt_text='請問您使用這個line bot的原因?',
-                    contents={"type": "bubble",
-                              "body": {
-                                "type": "box",
-                                "layout": "vertical",
-                                "contents": [
-                                  {
-                                    "type": "text",
-                                    "text": "請問您使用這個line bot的原因?",
-                                    "weight": "bold",
-                                    "size": "md"
-                                  }
-                                ]
-                              },
-                              "footer": {
-                                "type": "box",
-                                "layout": "vertical",
-                                "spacing": "sm",
-                                "contents": [
-                                  {
-                                    "type": "button",
-                                    "style": "link",
-                                    "height": "sm",
-                                    "action": {
-                                      "type": "postback",
-                                      "label": "身體健康",
-                                      "data": "1"
-                                    }
-                                  },
-                                  {
-                                    "type": "button",
-                                    "style": "link",
-                                    "height": "sm",
-                                    "action": {
-                                      "type": "postback",
-                                      "label": "怕家人擔心",
-                                      "data": "2"
-                                    }
-                                  },
-                                  {
-                                    "type": "button",
-                                    "style": "link",
-                                    "height": "sm",
-                                    "action": {
-                                      "type": "postback",
-                                      "label": "需要他人關心",
-                                      "data": "3"
-                                    }
-                                  },
-                                  {
-                                    "type": "button",
-                                    "style": "link",
-                                    "height": "sm",
-                                    "action": {
-                                      "type": "postback",
-                                      "label": "經常搞混藥品",
-                                      "data": "4"
-                                    }
-                                  }
-                                ],
-                                "flex": 0
-                              }
+  # get user id when reply
+  user_id = event.source.user_id
+  print("user_id =", user_id)
+  text = event.message.text
+  if text == '網址':
+    msg = TextSendMessage(text=f'https://liff.line.me/{config["Liff ID"]}')
+    line_bot_api.reply_message(event.reply_token, msg)
+  elif text == '說明':
+    msg = TextSendMessage(text='使用說明:\n若要填寫提醒請輸入【網址】\n查看使用說明請輸入【說明】')
+    line_bot_api.reply_message(event.reply_token, msg)
+  elif text == "客製化訊息":
+    line_bot_api.reply_message(
+      event.reply_token,
+      FlexSendMessage(alt_text='請問您使用這個line bot的原因?',
+                      contents={
+                        "type": "bubble",
+                        "body": {
+                          "type":
+                          "box",
+                          "layout":
+                          "vertical",
+                          "contents": [{
+                            "type": "text",
+                            "text": "請問您使用這個line bot的原因?",
+                            "weight": "bold",
+                            "size": "md"
+                          }]
+                        },
+                        "footer": {
+                          "type":
+                          "box",
+                          "layout":
+                          "vertical",
+                          "spacing":
+                          "sm",
+                          "contents": [{
+                            "type": "button",
+                            "style": "link",
+                            "height": "sm",
+                            "action": {
+                              "type": "postback",
+                              "label": "身體健康",
+                              "data": "1"
                             }
-    ))
-    else:
-      msg = TextSendMessage(text=f'https://liff.line.me/{config["Liff ID"]}')
-      line_bot_api.reply_message(event.reply_token, msg)
+                          }, {
+                            "type": "button",
+                            "style": "link",
+                            "height": "sm",
+                            "action": {
+                              "type": "postback",
+                              "label": "怕家人擔心",
+                              "data": "2"
+                            }
+                          }, {
+                            "type": "button",
+                            "style": "link",
+                            "height": "sm",
+                            "action": {
+                              "type": "postback",
+                              "label": "需要他人關心",
+                              "data": "3"
+                            }
+                          }, {
+                            "type": "button",
+                            "style": "link",
+                            "height": "sm",
+                            "action": {
+                              "type": "postback",
+                              "label": "經常搞混藥品",
+                              "data": "4"
+                            }
+                          }],
+                          "flex":
+                          0
+                        }
+                      }))
+  else:
+    msg = TextSendMessage(text=f'https://liff.line.me/{config["Liff ID"]}')
+    line_bot_api.reply_message(event.reply_token, msg)
 
 
 @handler.add(PostbackEvent)
 def handle_postback(event):  #吃藥提醒按鈕回傳值
-    if 'ateMedicine' in event.postback.data:
-      print(event.postback.data)
-      msg = TextSendMessage(text="您已服用藥物!\n又是個健康的一天:D")
-      line_bot_api.reply_message(event.reply_token, msg)
-    
+  if 'ateMedicine' in event.postback.data:
+    print(event.postback.data)
+    msg = TextSendMessage(text="您已服用藥物!\n又是個健康的一天:D")
+    line_bot_api.reply_message(event.reply_token, msg)
 
 
 if __name__ == '__main__':
-    postgres_manager = PostgresBaseManager()
-    postgres_manager.runServerPostgresdb()
-    #remindList = postgres_manager.checkRemindTime()  #確認當前時間的提醒數量
-    pushremindMsg()  #傳送吃藥提醒
-    pushTomorrowGetMedicineTextMsg() #傳送明天的領藥提醒
-    pushTodayGetMedicineTextMsg() #傳送30分鐘前的領藥提醒
-    pushGetMedicineFlexMsg() #傳送領藥提醒check box
-    app.debug = True
-    app.run(host='0.0.0.0', port=8080, use_reloader=False)
+  postgres_manager = PostgresBaseManager()
+  postgres_manager.runServerPostgresdb()
+  #remindList = postgres_manager.checkRemindTime()  #確認當前時間的提醒數量
+  pushremindMsg()  #傳送吃藥提醒
+  pushTomorrowGetMedicineTextMsg()  #傳送明天的領藥提醒
+  pushTodayGetMedicineTextMsg()  #傳送30分鐘前的領藥提醒
+  pushGetMedicineFlexMsg()  #傳送領藥提醒check box
+  app.debug = True
+  app.run(host='0.0.0.0', port=8080, use_reloader=False)
