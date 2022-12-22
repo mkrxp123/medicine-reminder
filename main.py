@@ -83,6 +83,11 @@ def fill_form():
 def search_img():
     reminder_id = int(request.args.get('ReminderID'))
     print(reminder_id)
+    base64 = ''
+    form = ''
+    base64, form = database.GetRemindPicture(reminder_id)
+    print("base64: ", base64)
+    print("Format: ", form)
     '''
         Search images in the database by reminder_id
         Should return imgae data(base64) and format
