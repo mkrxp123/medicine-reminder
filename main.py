@@ -1,5 +1,5 @@
 from linebot import LineBotApi, WebhookHandler
-from linebot.models import TextSendMessage, ImageSendMessage, MessageEvent, TextMessage, TemplateSendMessage, ButtonsTemplate, PostbackAction, MessageTemplateAction, PostbackEvent
+from linebot.models import TextSendMessage, ImageSendMessage, MessageEvent, TextMessage, TemplateSendMessage, ButtonsTemplate, PostbackAction, MessageTemplateAction, PostbackEvent, JoinEvent
 from linebot.exceptions import LineBotApiError, InvalidSignatureError
 from flask import Flask, request, abort, render_template, redirect, url_for, jsonify
 from utility import getKey, ajaxResponse, timetable, Database, pushremindMsg
@@ -163,6 +163,10 @@ def user_init():
 
     return ajaxResponse({'msg': 'user init successfully'})
 
+@handler.add(JoinEvent)
+def handle_join(event):
+  msg = TextSendMessage(text='使用說明:\n若要填寫提醒請輸入【網址】\n查看使用說明請輸入【說明】')
+  line_bot_api.reply_message(event.reply_token, msg)
 
 # see https://xiaosean.github.io/chatbot/2018-04-19-LineChatbot_usage/
 @handler.add(MessageEvent, message=TextMessage)
@@ -170,21 +174,27 @@ def handle_message(event):
     # get user id when reply
     user_id = event.source.user_id
     print("user_id =", user_id)
-    msg = TextSendMessage(text=f'https://liff.line.me/{config["Liff ID"]}')
-    line_bot_api.reply_message(event.reply_token, msg)
+    text = event.message.text
+    if text == '網址':
+      msg = TextSendMessage(text=f'https://liff.line.me/{config["Liff ID"]}')
+      line_bot_api.reply_message(event.reply_token, msg)
+    elif text == '說明':
+      msg = TextSendMessage(text='使用說明:\n若要填寫提醒請輸入【網址】\n查看使用說明請輸入【說明】')
+      line_bot_api.reply_message(event.reply_token, msg)
 
 
 @handler.add(PostbackEvent)
 def handle_postback(event):  #吃藥提醒按鈕回傳值
-    if event.postback.data == 'ateMedicine':
-        msg = TextSendMessage(text="您已服用藥物!\n又是個健康的一天:D")
-        line_bot_api.reply_message(event.reply_token, msg)
+    if 'ateMedicine' in event.postback.data:
+      print(event.postback.data)
+      msg = TextSendMessage(text="您已服用藥物!\n又是個健康的一天:D")
+      line_bot_api.reply_message(event.reply_token, msg)
 
 
 if __name__ == '__main__':
     postgres_manager = PostgresBaseManager()
     postgres_manager.runServerPostgresdb()
-    remindList = postgres_manager.checkRemindTime()  #確認當前時間的提醒數量
+    #remindList = postgres_manager.checkRemindTime()  #確認當前時間的提醒數量
     pushremindMsg()  #傳送吃藥提醒
     app.debug = True
     app.run(host='0.0.0.0', port=8080, use_reloader=False)

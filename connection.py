@@ -73,6 +73,7 @@ WHERE public.\"Reminders\".\"GetMedicine\"=True
     rows = cur.fetchall()
     list = []
     for row in rows:
+      print(str(row[0])+","+str(row[3])+","+str(row[4]))
       t = datetime.strptime((str(row[1])+" "+str(row[2])), "%Y-%m-%d %H:%M:%S")
       if(t<=t1 and t2<=t):
         print(t)

@@ -261,17 +261,19 @@ def pushremindMsg():
   postgres_manager = PostgresBaseManager()
   remindList = postgres_manager.checkRemindTime()
   # send remind message
+  print(len(remindList))
   if len(remindList):
     while (len(remindList)):
       msg = postgres_manager.getPostgresdbData()
       reTitle = remindList[0][1]
       reLineID = remindList[0][2]  #要傳送提醒的使用者Line ID
+      reID = remindList[0][0]
       buttons_template = ButtonsTemplate(
         title=reTitle,
         thumbnail_image_url='https://medlineplus.gov/images/Medicines.jpg',
         text=msg,
         actions=[
-          PostbackAction(label='確認', data='ateMedicine', display_text='已吃藥!')
+          PostbackAction(label='確認', data='ateMedicine'+reID, display_text='已吃藥!')
         ])
       template_message = TemplateSendMessage(alt_text='吃藥提醒',
                                              template=buttons_template)
