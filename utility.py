@@ -273,7 +273,7 @@ def pushremindMsg():
         thumbnail_image_url='https://medlineplus.gov/images/Medicines.jpg',
         text=msg,
         actions=[
-          PostbackAction(label='確認', data='ateMedicine'+reID, display_text='已吃藥!')
+          PostbackAction(label='確認', data='ateMedicine'+str(reID), display_text='已吃藥!')
         ])
       template_message = TemplateSendMessage(alt_text='吃藥提醒',
                                              template=buttons_template)

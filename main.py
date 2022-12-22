@@ -251,9 +251,6 @@ def handle_message(event):
                           0
                         }
                       }))
-  else:
-    msg = TextSendMessage(text=f'https://liff.line.me/{config["Liff ID"]}')
-    line_bot_api.reply_message(event.reply_token, msg)
 
 
 @handler.add(PostbackEvent)

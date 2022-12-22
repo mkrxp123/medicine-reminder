@@ -41,7 +41,7 @@ FROM (public.\"Users\" INNER JOIN public.\"Reminders\"
 ON public.\"Users\".\"UserName\"=public.\"Reminders\".\"UserName\")
 INNER JOIN public.\"RemindTimes\" 
 ON public.\"Reminders\".\"ReminderID\"=public.\"RemindTimes\".\"ReminderID\"
-WHERE public.\"Reminders\".\"GetMedicine\"=True
+WHERE public.\"Reminders\".\"GetMedicine\"=False
     """
     cur.execute(sql)
     rows = cur.fetchall()
@@ -53,6 +53,7 @@ WHERE public.\"Reminders\".\"GetMedicine\"=True
     cur.close()
     return message
 
+  #抓取吃藥提醒
   def checkRemindTime(self):
     cur = self.conn.cursor()
     sql="""
@@ -61,7 +62,7 @@ FROM (public.\"Users\" INNER JOIN public.\"Reminders\"
 ON public.\"Users\".\"UserName\"=public.\"Reminders\".\"UserName\")
 INNER JOIN public.\"RemindTimes\" 
 ON public.\"Reminders\".\"ReminderID\"=public.\"RemindTimes\".\"ReminderID\"
-WHERE public.\"Reminders\".\"GetMedicine\"=True
+WHERE public.\"Reminders\".\"GetMedicine\"=False
     """
     cur.execute(sql)
     tz = timezone(timedelta(hours=+8))
@@ -73,7 +74,7 @@ WHERE public.\"Reminders\".\"GetMedicine\"=True
     rows = cur.fetchall()
     list = []
     for row in rows:
-      print(str(row[0])+","+str(row[3])+","+str(row[4]))
+      #print(str(row[0])+","+str(row[3])+","+str(row[4]))
       t = datetime.strptime((str(row[1])+" "+str(row[2])), "%Y-%m-%d %H:%M:%S")
       if(t<=t1 and t2<=t):
         print(t)
