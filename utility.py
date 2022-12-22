@@ -6,7 +6,7 @@ from sqlalchemy import Table, Column, String, MetaData, Integer, LargeBinary, VA
 sqlite3.enable_callback_tracebacks(True)
 from connection import *
 from linebot import LineBotApi
-from linebot.models import TextSendMessage, ImageSendMessage, MessageEvent, TextMessage, TemplateSendMessage, ButtonsTemplate, PostbackAction, MessageTemplateAction, PostbackEvent
+from linebot.models import TextSendMessage, ImageSendMessage, MessageEvent, TextMessage, TemplateSendMessage, ButtonsTemplate, PostbackAction, MessageTemplateAction, PostbackEvent, FlexSendMessage
 from sqlalchemy.sql.expression import func
 from sqlalchemy.orm import sessionmaker
 from datetime import date, timedelta, datetime
@@ -280,10 +280,16 @@ def pushremindMsg():
     print(len(remindList))
     if len(remindList):
         while (len(remindList)):
-            msg = postgres_manager.getPostgresdbData()
+            #msg = postgres_manager.getPostgresdbData()
             reTitle = remindList[0][1]
             reLineID = remindList[0][2]  #要傳送提醒的使用者Line ID
             reID = remindList[0][0]
+
+            #客製化訊息
+            type_number = postgres_manager.getReplyMsgType(reLineID)
+            msg = replyMsg(type_number)
+            #print("msg:", msg)
+          
             buttons_template = ButtonsTemplate(
                 title=reTitle,
                 thumbnail_image_url=
@@ -311,11 +317,143 @@ def pushTomorrowGetMedicineTextMsg():
     if len(List):
         for r in List:
             reLineID = r[5]
-            msg = '明日請記得領藥!\n' + '提醒領藥者 : ' + str(
-                r[0]) + '\n' + '領取藥品名稱 : ' + str(
-                    r[2]) + '\n' + '領取時間 : ' + str(r[3]) + ' ' + str(
-                        r[4]) + '\n' + '領取地點 : ' + str(r[6]) + '\n' + '祝您身體健康!'
-            line_bot_api.push_message(reLineID, TextSendMessage(text=msg))
+            #msg = '明日請記得領藥!\n' + '提醒領藥者 : ' + str(
+                #r[0]) + '\n' + '領取藥品名稱 : ' + str(
+                    #r[2]) + '\n' + '領取時間 : ' + str(r[3]) + ' ' + str(
+                        #r[4]) + '\n' + '領取地點 : ' + str(r[6]) + '\n' + '祝您身體健康!'
+            #line_bot_api.push_message(reLineID, TextSendMessage(text=msg))
+            line_bot_api.push_message(
+                    reLineID,
+                    FlexSendMessage(alt_text='明日請記得領藥!',
+                                    contents={
+                                        "type": "bubble",
+                                        "body": {
+                                            "type":
+                                            "box",
+                                            "layout":
+                                            "vertical",
+                                            "contents": [{
+                                                "type": "text",
+                                                "text": "明日("+str(r[3])+")領藥提醒!",
+                                                "weight": "bold",
+                                                "size": "md"
+                                            }, {
+                                                "type":
+                                                "box",
+                                                "layout":
+                                                "vertical",
+                                                "margin":
+                                                "lg",
+                                                "spacing":
+                                                "sm",
+                                                "contents": [{
+                                                    "type":
+                                                    "box",
+                                                    "layout":
+                                                    "baseline",
+                                                    "spacing":
+                                                    "sm",
+                                                    "contents": [{
+                                                        "type": "text",
+                                                        "text": "提醒領藥者 : ",
+                                                        "color": "#aaaaaa",
+                                                        "size": "sm",
+                                                        "flex": 0
+                                                    }, {
+                                                        "type":
+                                                        "text",
+                                                        "text":
+                                                        str(r[0]),
+                                                        "color":
+                                                        "#666666",
+                                                        "size":
+                                                        "sm",
+                                                        "flex":
+                                                        2
+                                                    }]
+                                                }, {
+                                                    "type":
+                                                    "box",
+                                                    "layout":
+                                                    "baseline",
+                                                    "spacing":
+                                                    "sm",
+                                                    "contents": [{
+                                                        "type": "text",
+                                                        "text": "領取藥品名稱 :",
+                                                        "color": "#aaaaaa",
+                                                        "size": "sm",
+                                                        "flex": 0
+                                                    }, {
+                                                        "type":
+                                                        "text",
+                                                        "text":
+                                                        str(r[2]),
+                                                        "color":
+                                                        "#666666",
+                                                        "size":
+                                                        "sm",
+                                                        "flex":
+                                                        5
+                                                    }]
+                                                }, {
+                                                    "type":
+                                                    "box",
+                                                    "layout":
+                                                    "baseline",
+                                                    "spacing":
+                                                    "sm",
+                                                    "contents": [{
+                                                        "type": "text",
+                                                        "text": "領取時間 :",
+                                                        "color": "#aaaaaa",
+                                                        "size": "sm",
+                                                        "flex": 0
+                                                    }, {
+                                                        "type":
+                                                        "text",
+                                                        "text":
+                                                        str(r[3]) + " " +
+                                                        str(r[4]),
+                                                        "color":
+                                                        "#666666",
+                                                        "size":
+                                                        "sm",
+                                                        "flex":
+                                                        5
+                                                    }]
+                                                }, {
+                                                    "type":
+                                                    "box",
+                                                    "layout":
+                                                    "baseline",
+                                                    "spacing":
+                                                    "sm",
+                                                    "contents": [{
+                                                        "type": "text",
+                                                        "text": "領取地點 : ",
+                                                        "color": "#aaaaaa",
+                                                        "size": "sm",
+                                                        "flex": 0
+                                                    }, {
+                                                        "type":
+                                                        "text",
+                                                        "text":
+                                                        str(r[6]),
+                                                        "color":
+                                                        "#666666",
+                                                        "size":
+                                                        "sm",
+                                                        "flex":
+                                                        5
+                                                    }]
+                                                }, {
+                                                    "type": "text",
+                                                    "text": "祝您身體健康!"
+                                                }]
+                                            }]
+                                        }
+                                    }))
 
     return True
 
@@ -335,16 +473,148 @@ def pushTodayGetMedicineTextMsg():
             #輸出比現在時間早半小時
             remindTime = (dt2 +
                           timedelta(minutes=-30)).strftime("%Y-%m-%d %H:%M:00")
-            print("remind time : ", remindTime)
+            #print("remind time : ", remindTime)
             reLineID = r[5]
 
             if str(r[3]) + " " + str(r[4]) == str(remindTime):
-                msg = '請記得於30分鐘後至診所/醫院領藥!\n' + '提醒領藥者 : ' + str(
-                    r[0]) + '\n' + '領取藥品名稱 : ' + str(
-                        r[2]) + '\n' + '領取時間 : ' + str(r[3]) + ' ' + str(
-                            r[4]) + '\n' + '領取地點 : ' + str(
-                                r[6]) + '\n' + '祝您身體健康!'
-                line_bot_api.push_message(reLineID, TextSendMessage(text=msg))
+                #msg = '請記得於30分鐘後至診所/醫院領藥!\n' + '提醒領藥者 : ' + str(
+                    #r[0]) + '\n' + '領取藥品名稱 : ' + str(
+                        #r[2]) + '\n' + '領取時間 : ' + str(r[3]) + ' ' + str(
+                            #r[4]) + '\n' + '領取地點 : ' + str(
+                                #r[6]) + '\n' + '祝您身體健康!'
+                #line_bot_api.push_message(reLineID, TextSendMessage(text=msg))
+                line_bot_api.push_message(
+                    reLineID,
+                    FlexSendMessage(alt_text='請記得於30分鐘後至診所/醫院領藥!',
+                                    contents={
+                                        "type": "bubble",
+                                        "body": {
+                                            "type":
+                                            "box",
+                                            "layout":
+                                            "vertical",
+                                            "contents": [{
+                                                "type": "text",
+                                                "text": "請記得於30分鐘後至診所/醫院領藥!",
+                                                "weight": "bold",
+                                                "size": "md"
+                                            }, {
+                                                "type":
+                                                "box",
+                                                "layout":
+                                                "vertical",
+                                                "margin":
+                                                "lg",
+                                                "spacing":
+                                                "sm",
+                                                "contents": [{
+                                                    "type":
+                                                    "box",
+                                                    "layout":
+                                                    "baseline",
+                                                    "spacing":
+                                                    "sm",
+                                                    "contents": [{
+                                                        "type": "text",
+                                                        "text": "提醒領藥者 : ",
+                                                        "color": "#aaaaaa",
+                                                        "size": "sm",
+                                                        "flex": 0
+                                                    }, {
+                                                        "type":
+                                                        "text",
+                                                        "text":
+                                                        str(r[0]),
+                                                        "color":
+                                                        "#666666",
+                                                        "size":
+                                                        "sm",
+                                                        "flex":
+                                                        2
+                                                    }]
+                                                }, {
+                                                    "type":
+                                                    "box",
+                                                    "layout":
+                                                    "baseline",
+                                                    "spacing":
+                                                    "sm",
+                                                    "contents": [{
+                                                        "type": "text",
+                                                        "text": "領取藥品名稱 :",
+                                                        "color": "#aaaaaa",
+                                                        "size": "sm",
+                                                        "flex": 0
+                                                    }, {
+                                                        "type":
+                                                        "text",
+                                                        "text":
+                                                        str(r[2]),
+                                                        "color":
+                                                        "#666666",
+                                                        "size":
+                                                        "sm",
+                                                        "flex":
+                                                        5
+                                                    }]
+                                                }, {
+                                                    "type":
+                                                    "box",
+                                                    "layout":
+                                                    "baseline",
+                                                    "spacing":
+                                                    "sm",
+                                                    "contents": [{
+                                                        "type": "text",
+                                                        "text": "領取時間 :",
+                                                        "color": "#aaaaaa",
+                                                        "size": "sm",
+                                                        "flex": 0
+                                                    }, {
+                                                        "type":
+                                                        "text",
+                                                        "text":
+                                                        str(r[3]) + " " +
+                                                        str(r[4]),
+                                                        "color":
+                                                        "#666666",
+                                                        "size":
+                                                        "sm",
+                                                        "flex":
+                                                        5
+                                                    }]
+                                                }, {
+                                                    "type":
+                                                    "box",
+                                                    "layout":
+                                                    "baseline",
+                                                    "spacing":
+                                                    "sm",
+                                                    "contents": [{
+                                                        "type": "text",
+                                                        "text": "領取地點 : ",
+                                                        "color": "#aaaaaa",
+                                                        "size": "sm",
+                                                        "flex": 0
+                                                    }, {
+                                                        "type":
+                                                        "text",
+                                                        "text":
+                                                        str(r[6]),
+                                                        "color":
+                                                        "#666666",
+                                                        "size":
+                                                        "sm",
+                                                        "flex":
+                                                        5
+                                                    }]
+                                                }, {
+                                                    "type": "text",
+                                                    "text": "祝您身體健康!"
+                                                }]
+                                            }]
+                                        }
+                                    }))
 
     return True
 
@@ -365,12 +635,15 @@ def pushGetMedicineFlexMsg():
             #取得日期
             dt1 = datetime.utcnow().replace(tzinfo=timezone.utc)
             dt2 = dt1.astimezone(timezone(timedelta(hours=8)))  # 轉換時區 -> 東八區
-            #輸出比現在時間早半小時
             now = dt2.strftime("%Y-%m-%d %H:%M:00")
-            print("now : ", now)
+            #print("now : ", now)
 
             reLineID = r[5]  #要傳送提醒的使用者Line ID
-
+            #客製化訊息
+            #type_number = postgres_manager.getReplyMsgType(reLineID)
+            #msg = replyMsg(type_number)
+            #print("msg:", msg)
+            #'記得至診所/醫院領取藥品~'
             if str(r[3]) + " " + str(r[4]) == str(now):
                 line_bot_api.push_message(
                     reLineID,
@@ -525,3 +798,37 @@ def pushGetMedicineFlexMsg():
                                         }
                                     }))
     return True
+
+#push本日準時吃幾次藥
+def pushOntimeTakeMedicine():
+    config = getKey()
+    line_bot_api = LineBotApi(config["Channel access token"])
+    postgres_manager = PostgresBaseManager()
+    List = postgres_manager.getLineID()
+
+    if len(List):
+      for r in List:
+        reLineID = r[0]
+        #print("LineID: ", reLineID)
+        ontime_times = postgres_manager.getCheck(reLineID)
+        msg = '恭喜您~今天準時吃藥' + str(ontime_times) + '次\n'+'請繼續保持!'
+        #print("msg: ", msg)
+        if ontime_times > 0:
+          line_bot_api.push_message(reLineID, TextSendMessage(text=msg))
+        #else:
+          #msg = '恭喜您~今天準時吃藥0次\n'+'請繼續保持!'
+          #line_bot_api.push_message(reLineID, TextSendMessage(text=msg))
+    return True
+
+#依照type_number找相對應的reply message
+def replyMsg(type_number):
+  reply_str = ""
+  if type_number == 1:
+    reply_str = "您好~為了身體健康，請記得準時吃藥!"
+  elif type_number == 2:
+    reply_str = "您好~為了不讓家人擔心，請記得準時吃藥!"
+  elif type_number == 3:
+    reply_str = "欸!吃藥了沒?記得準時吃藥!!!!!!!"
+  else:
+    reply_str = "請準時吃藥ㄚㄚㄚㄚㄚㄚ"
+  return reply_str

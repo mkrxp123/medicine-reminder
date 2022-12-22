@@ -118,7 +118,6 @@ WHERE public.\"Reminders\".\"GetMedicine\"=False
     cursor.close()
     return list
 
-
   #抓取明天的領藥資訊
   def getTomorrowList(self):
     #抓取資料
@@ -138,10 +137,10 @@ WHERE public.\"Reminders\".\"GetMedicine\"=False
     #取得日期
     dt1 = datetime.utcnow().replace(tzinfo=timezone.utc)
     dt2 = dt1.astimezone(timezone(timedelta(hours=8)))  # 轉換時區 -> 東八區
-    print("dt2: ", dt2)
+    #print("dt2: ", dt2)
     #dt3 = (dt2 + timedelta(hours = -1) + timedelta(seconds = -1*dt2.second)).strftime("%H:%M:%S")   #輸出比現在時間早半小時
     tomorrow = (dt2 + timedelta(days=1)).strftime("%Y-%m-%d %H:%M:00")   #輸出比現在時間早一天
-    print("tomorrow : ", tomorrow)
+    #print("tomorrow : ", tomorrow)
 
     list = []
     for r in data2: 
@@ -149,6 +148,91 @@ WHERE public.\"Reminders\".\"GetMedicine\"=False
         list.append([str(r[0]), str(r[1]), str(r[2]), str(r[3]), str(r[4]), str(r[5]), str(r[6])])
         #print(str(r[0]), str(r[1]), str(r[2]), str(r[3]), str(r[4]), str(r[5]), str(r[6]))
 
+    self.conn.commit()
+    cursor.close()
+    return list
+
+  #更新Users table的ReplyMsgType
+  def updateReplyMsgType(self, value, userID):
+
+    cursor = self.conn.cursor()
+    update = """UPDATE public.\"Users\" 
+                set \"ReplyMsgType\" = %b 
+                WHERE \"LineID\" = %s"""
+
+    cursor.execute(update, (value, userID))
+    #print("complete update ReplyMsgType!")
+    self.conn.commit()
+    cursor.close()
+
+  #抓取ReplyMsgType
+  def getReplyMsgType(self, userID):
+
+    cursor = self.conn.cursor()
+    data = """SELECT public.\"Users\".\"ReplyMsgType\", public.\"Users\".\"LineID\" 
+              FROM public.\"Users\""""
+    cursor.execute(data)
+    rows = cursor.fetchall()
+
+    type_number = 0
+    for r in rows:
+      if str(r[1]) == userID:
+        type_number = r[0]
+        break
+    #print("type number:", type_number)
+      
+    self.conn.commit()
+    cursor.close()
+    return type_number
+
+  #抓取Check
+  def getCheck(self, userID):
+
+    cursor = self.conn.cursor()
+    data = """SELECT public.\"RemindTimes\".\"Checked\", public.\"Users\".\"LineID\",     
+                     public.\"RemindTimes\".\"RemindDate\", public.\"RemindTimes\".\"RemindTime\"
+              FROM (public.\"Users\" INNER JOIN public.\"Reminders\" 
+              ON public.\"Users\".\"UserName\"=public.\"Reminders\".\"UserName\")
+              INNER JOIN public.\"RemindTimes\" 
+              ON public.\"Reminders\".\"ReminderID\"=public.\"RemindTimes\".\"ReminderID\"
+              WHERE public.\"Reminders\".\"GetMedicine\"=False 
+              and public.\"RemindTimes\".\"Checked\"=True"""
+    cursor.execute(data)
+    rows = cursor.fetchall()
+
+    #取得日期
+    dt1 = datetime.utcnow().replace(tzinfo=timezone.utc)
+    dt2 = dt1.astimezone(timezone(timedelta(hours=8)))  # 轉換時區 -> 東八區
+    today = dt2.strftime("%Y-%m-%d")
+
+    counter = 0
+    for r in rows:
+      #print(str(r[1]), userID)
+      #print(str(r[2]), today)
+      #print(str(r[0]))
+      if (str(r[1]) == str(userID)) and (str(r[2]) == str(today)):
+        #print("+1")
+        counter = counter + 1
+      #print(userID, counter)
+    #print("counter:", counter)
+    self.conn.commit()
+    cursor.close()
+    return counter
+
+  
+  #抓取LineID
+  def getLineID(self):
+
+    cursor = self.conn.cursor()
+    data = """SELECT public.\"Users\".\"LineID\" FROM public.\"Users\""""
+    cursor.execute(data)
+    data2 = cursor.fetchall()
+
+    list = []
+    for r in data2:
+      list.append([str(r[0])])
+      #print(str(r[0]))
+      
     self.conn.commit()
     cursor.close()
     return list
