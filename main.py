@@ -79,6 +79,18 @@ def fill_form():
     return ajaxResponse({'msg': 'fill form successfully'})
 
 
+@app.route("/search-img", methods=["GET"])
+def search_img():
+    reminder_id = int(request.args.get('ReminderID'))
+    print(reminder_id)
+    '''
+        Search images in the database by reminder_id
+        Should return imgae data(base64) and format
+    '''
+    
+    return ajaxResponse({'msg': reminder_id})
+
+
 @app.route("/search-routine", methods=["POST"])
 def search_routine():
     '''

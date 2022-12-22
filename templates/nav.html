@@ -328,6 +328,20 @@
 			}
 		})
     }
+
+    function getImg(id) {
+        $.ajax({
+			url: "/search-img?ReminderID=" + id,
+			method: "GET",
+			async: true,
+			success: function (data) {
+				console.log(data);
+			},
+			error: function (jqxhr, textStatus, errorThrown) {
+				alert("error: " + textStatus);
+			}
+		})
+    }
     
     var app = Vue.createApp({
         delimiters: ["((", "))"], // otherwise original delimiter of Vue would conflict with that of Jinja
