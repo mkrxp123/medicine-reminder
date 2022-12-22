@@ -170,7 +170,7 @@ class Database:
   # 查詢今日所有的提醒的全部資料並存入一個list of dictionary 大概長這樣[{}, {}, {}]
   def GetTodayReminds(self):
     today = datetime.today().strftime('%Y-%m-%d')
-    select_statement = '''select * from (select * from "RemindTimes" where "RemindDate" = '{0}'::date) as RemindTime natural join "Reminders" natural join "Users" natural join "RemindGroups"'''.format(
+    select_statement = '''select * from (select * from "RemindTimes" where "RemindDate" = '{0}'::date) as RemindTime natural join "Reminders" natural join "Users"'''.format(
       today)
     result = self.db.execute(select_statement).fetchall()
     Today_Reminds = []
@@ -180,20 +180,18 @@ class Database:
 
   # 查詢特定使用者的全部資料
   def GetUserAllReminds(self, user_id):
-    select_statement = '''select * from (select * from "Users" where "LineID" = '{0}') as users natural join "Reminders" natural join "RemindTimes" natural join "RemindGroups"'''.format(
+    select_statement = '''select * from (select * from "Users" where "LineID" = '{0}') as users natural join "Reminders" natural join "RemindTimes"'''.format(
       user_id)
     result = self.db.execute(select_statement).fetchall()
     user_data = []
     dates = []
     for row in result:
       user_data.append(dict(row))
-    select_statement = '''with date_calc as (select "ReminderID", min("RemindDate") as begindate, max("RemindDate") as enddate from "RemindTimes" Group by "ReminderID" order by "ReminderID" asc) select distinct "ReminderID", begindate, enddate from (select * from "Users" where "LineID" = '{0}') as users natural join "Reminders" natural join "RemindTimes" natural join "RemindGroups" natural join "date_calc"'''.format(
+    select_statement = '''with date_calc as (select "ReminderID", min("RemindDate") as begindate, max("RemindDate") as enddate from "RemindTimes" Group by "ReminderID" order by "ReminderID" asc) select distinct "ReminderID", begindate, enddate from (select * from "Users" where "LineID" = '{0}') as users natural join "Reminders" natural join "RemindTimes" natural join "date_calc"'''.format(
       user_id)
     result = self.db.execute(select_statement).fetchall()
     for row in result:
       dates.append(dict(row))
-    #user_data = sorted(user_data, key = itemgetter('ReminderID'))
-    #select_statement = '''with date_calc as (select "ReminderID", min("RemindDate") as begindate, max("RemindDate") as enddate from "RemindTimes" Group by "ReminderID" order by "ReminderID" asc) select distinct "ReminderID", begindate, enddate from (select * from "Users" where "LineID" = 'U1100043733aea416a3c3055dfa4accdf') as users natural join "Reminders" natural join "RemindTimes" natural join "RemindGroups" natural join "date_calc"'''
     final = []
     for dic in user_data:
       dic["RemindDate"] = dic["RemindDate"].strftime("%Y-%m-%d")
