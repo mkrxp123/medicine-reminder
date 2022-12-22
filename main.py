@@ -95,8 +95,6 @@ def search_routine():
         for key, item in d.items()
         if key not in ["GroupID", "GroupName", "UserName", "LineID"]
     } for d in user_data]
-    for d in data:
-        print(d)
     return ajaxResponse(data)
 
 

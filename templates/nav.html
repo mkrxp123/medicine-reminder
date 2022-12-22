@@ -207,7 +207,7 @@
 						<div class="form-group">
 							<button type="button" style="margin-left: 12px;" class="btn btn-secondary" @click="this.inputs['timepickers'].push('')">增加行程</button>
 							<button type="button" style="margin-left: 12px;" class="btn btn-warning" @click="this.inputs['timepickers'].pop()">減少行程</button>
-							<button type="button" style="margin-left: 12px;" class="btn btn-danger" @click="this.inputs['timepickers'] = []">重置</button>
+							<button type="button" style="margin-left: 12px;" class="btn btn-danger" @click="this.inputs['timepickers'] = ['']">重置</button>
 							<button type="submit" style="margin-left: 12px;" class="btn btn-primary">送出</button>
 						</div>
 					</div>
@@ -218,7 +218,8 @@
                 <div v-if="debug">(( routines ))</div>
 				<div class="row row-cols-1 row-cols-md-4 g-4">
 					<div class="col" v-for="(routine, index) in routines" :key="routine">
-						<div class="card">
+						<div class="card h-100">
+                            <img v-if="routine['Picture'] != ''" :src="'data:image/' + routine['Format'] + ';base64,' + routine['Picture']" class="card-img-top">
 							<div class="card-body">
 								<h5 class="card-title">(( routine['Title'] ))</h5>
 								<button type="button" class="btn btn-primary" data-bs-toggle="modal" :data-bs-target="'#modal' + index" @click="tempRoutine(index)">時間表</button>
@@ -332,7 +333,7 @@
         delimiters: ["((", "))"], // otherwise original delimiter of Vue would conflict with that of Jinja
         data() {
             return {
-                debug:true,
+                debug:false,
                 display_name:'',
                 picture_url:'',
                 status_msg:'',
@@ -345,7 +346,7 @@
                     'format':'',
                     'begindate':'',
                     'enddate':'',
-                    'timepickers': []
+                    'timepickers': ['']
                 },
 				routines: [],
                 temp_routine:{}
@@ -390,7 +391,7 @@
         			data: JSON.stringify(dict),
         			async: true,
         			success: (data) => {
-        				console.log(data);
+        				alert(data.msg);
                         this.searchRoutine();
         			},
         			error: function (jqxhr, textStatus, errorThrown) {
