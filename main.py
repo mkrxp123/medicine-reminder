@@ -1,5 +1,5 @@
 from linebot import LineBotApi, WebhookHandler
-from linebot.models import TextSendMessage, ImageSendMessage, MessageEvent, TextMessage, TemplateSendMessage, ButtonsTemplate, PostbackAction, MessageTemplateAction, PostbackEvent, JoinEvent
+from linebot.models import TextSendMessage, ImageSendMessage, MessageEvent, TextMessage, TemplateSendMessage, ButtonsTemplate, PostbackAction, MessageTemplateAction, PostbackEvent, JoinEvent, FlexSendMessage
 from linebot.exceptions import LineBotApiError, InvalidSignatureError
 from flask import Flask, request, abort, render_template, redirect, url_for, jsonify
 from utility import getKey, ajaxResponse, timetable, Database, pushremindMsg, pushGetMedicineFlexMsg, pushTomorrowGetMedicineTextMsg, pushTodayGetMedicineTextMsg, pushOntimeTakeMedicine
@@ -170,8 +170,9 @@ def user_init():
 
 @handler.add(JoinEvent)
 def handle_join(event):
+  group_id = event.source.group_id
   msg = TextSendMessage(text='使用說明:\n若要填寫提醒請輸入【網址】\n查看使用說明請輸入【說明】')
-  line_bot_api.reply_message(event.reply_token, msg)
+  line_bot_api.push_message(group_id, msg)
   line_bot_api.reply_message(
       event.reply_token,
       FlexSendMessage(alt_text='請問您使用這個line bot的原因?',
