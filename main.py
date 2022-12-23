@@ -321,7 +321,9 @@ def handle_message(event):
 @handler.add(PostbackEvent)
 def handle_postback(event):  #吃藥提醒按鈕回傳值
   if 'ateMedicine' in event.postback.data:
-    print(event.postback.data)
+    reminder_id = int(event.postback.data[11:])
+    postgres_manager = PostgresBaseManager()
+    postgres_manager.updateRemindTimeChecked(True, reminder_id)
     msg = TextSendMessage(text="您已服用藥物!\n又是個健康的一天:D")
     line_bot_api.reply_message(event.reply_token, msg)
 
@@ -329,8 +331,6 @@ def handle_postback(event):  #吃藥提醒按鈕回傳值
 if __name__ == '__main__':
   postgres_manager = PostgresBaseManager()
   postgres_manager.runServerPostgresdb()
-  #remindList = postgres_manager.checkRemindTime()  #確認當前時間的提醒數量
-  #remindList = postgres_manager.checkRemindTime()  #確認當前時間的提醒數量
   pushremindMsg()  #傳送吃藥提醒
   pushTomorrowGetMedicineTextMsg()  #傳送明天的領藥提醒
   pushTodayGetMedicineTextMsg()  #傳送30分鐘前的領藥提醒

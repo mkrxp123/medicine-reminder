@@ -245,8 +245,7 @@ class Database:
         self.session.commit()
         self.session.query(self.RemindTimes).filter(self.RemindTimes.c.ReminderID == id).delete()
         self.session.commit()
-
-
+  
 def getKey():
     with open("setting/key.json", 'r') as f:
         config = json.load(f)

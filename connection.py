@@ -62,7 +62,7 @@ FROM (public.\"Users\" INNER JOIN public.\"Reminders\"
 ON public.\"Users\".\"UserName\"=public.\"Reminders\".\"UserName\")
 INNER JOIN public.\"RemindTimes\" 
 ON public.\"Reminders\".\"ReminderID\"=public.\"RemindTimes\".\"ReminderID\"
-WHERE public.\"Reminders\".\"GetMedicine\"=False
+WHERE public.\"Reminders\".\"GetMedicine\"=False and public.\"RemindTimes\".\"Checked\" != True
     """
     cur.execute(sql)
     tz = timezone(timedelta(hours=+8))
@@ -84,6 +84,16 @@ WHERE public.\"Reminders\".\"GetMedicine\"=False
     cur.close()
     return list
 
+  def updateRemindTimeChecked(self, checked, reminderID):
+    cursor = self.conn.cursor()
+    update = """UPDATE public.\"RemindTimes\" 
+                set \"Checked\" = %b 
+                WHERE \"ReminderID\" = %b"""
+    
+    cursor.execute(update,(checked, reminderID))
+    #print("complete update RemindTimeChecked!")
+    self.conn.commit()
+    cursor.close()
     
   #抓取今日領藥資訊
   def getTodayList(self):
