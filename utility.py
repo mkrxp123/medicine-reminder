@@ -246,6 +246,55 @@ class Database:
         self.session.query(self.RemindTimes).filter(self.RemindTimes.c.ReminderID == id).delete()
         self.session.commit()
   
+    def UpdateReminder(self, form):
+        origin_remind_id = form['ReminderID']
+        if form['GetMedicine']:
+            hospital = form['Hospital']
+            title = form['Title']
+            begin_date_str = form['begindate']
+            end_date_str = form['enddate']
+            time_list = form['RemindTime']
+            self.session.query(self.Reminders).filter(
+                self.Reminders.c.ReminderID == origin_remind_id).update({
+                    'Title':
+                    title,
+                    'Hospital':
+                    hospital
+                })
+            self.session.commit()
+        else:
+            title = form['Title']
+            begin_date_str = form['begindate']
+            end_date_str = form['enddate']
+            time_list = form['RemindTime']
+            self.session.query(self.Reminders).filter(
+                self.Reminders.c.ReminderID == origin_remind_id).update({
+                    'Title':
+                    title
+                })
+            self.session.commit()
+
+        self.session.query(self.RemindTimes).filter(
+            self.RemindTimes.c.ReminderID == origin_remind_id).delete()
+        self.session.commit()
+
+        begin_date_list = [int(num) for num in begin_date_str.split('-')]
+        begin_date = date(begin_date_list[0], begin_date_list[1],
+                          begin_date_list[2])
+        end_date_list = [int(num) for num in end_date_str.split('-')]
+        end_date = date(end_date_list[0], end_date_list[1], end_date_list[2])
+        delta = end_date - begin_date
+
+        ## 依序insert
+        for i in range(delta.days + 1):
+            day = begin_date + timedelta(days=i)
+            for current_time in time_list:
+                insert_statement = self.RemindTimes.insert().values(
+                    ReminderID=origin_remind_id,
+                    RemindTime=current_time,
+                    RemindDate=day)
+                self.db.execute(insert_statement)
+
 def getKey():
     with open("setting/key.json", 'r') as f:
         config = json.load(f)
