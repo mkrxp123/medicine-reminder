@@ -251,7 +251,7 @@ def handle_join(event):
                           },
                           {
                             "type": "text",
-                            "text": "(讓群組內的其他人可以打電話給您)",
+                            "text": "(讓群組內的其他人可以打電話給您進行提醒)",
                             "weight": "bold",
                             "size": "md",
                             "flex": 0,
@@ -384,9 +384,16 @@ def handle_message(event):
   elif text == "3.需要他人關心":
     postgres_manager = PostgresBaseManager()
     postgres_manager.updateReplyMsgType(3, user_id)
+  elif "09" in text:
+    phoneNumber = text
+    postgres_manager = PostgresBaseManager()
+    postgres_manager.updatePhoneNumber(user_id, phoneNumber)
+    msg = TextSendMessage(text="已收到您的手機號碼")
+    line_bot_api.reply_message(event.reply_token, msg)
   else:
     postgres_manager = PostgresBaseManager()
     postgres_manager.updateReplyMsgType(0, user_id)
+
 
 @handler.add(PostbackEvent)
 def handle_postback(event):  #吃藥提醒按鈕回傳值
@@ -400,7 +407,6 @@ def handle_postback(event):  #吃藥提醒按鈕回傳值
     postgres_manager = PostgresBaseManager()
     msg = TextSendMessage(text='請輸入您的手機號碼【Ex. 0987654321】')
     line_bot_api.reply_message(event.reply_token, msg)
-    #postgres_manager.updatePhoneNumber(user_id, phoneNumber)
   elif 'phone_no' in event.postback.data:
     msg = TextSendMessage(text='好的，謝謝您的回覆!')
     line_bot_api.reply_message(event.reply_token, msg)
@@ -408,7 +414,6 @@ def handle_postback(event):  #吃藥提醒按鈕回傳值
 if __name__ == '__main__':
   postgres_manager = PostgresBaseManager()
   postgres_manager.runServerPostgresdb()
-  print(postgres_manager.getPhoneNumber("U5f1616ac0906ab6bac8cdc672c297991"))
   pushremindMsg()  #傳送吃藥提醒
   pushTomorrowGetMedicineTextMsg()  #傳送明天的領藥提醒
   pushTodayGetMedicineTextMsg()  #傳送30分鐘前的領藥提醒
