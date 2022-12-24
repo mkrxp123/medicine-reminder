@@ -310,7 +310,7 @@
         							                    <button type="button" style="margin-left: 12px;" class="btn btn-warning" @click="pop(index)">減少</button>
                             							<button type="button" style="margin-left: 12px;" class="btn btn-danger" @click="reset(index)">重置</button>
                                                         <button type="button"style="margin-left: 12px;"  class="btn btn-info" @click="tempRoutine(index)">復原</button>
-                                                        <button type="submit" style="margin-left: 12px;" class="btn btn-primary" @click="modalHide()">更改</button>
+                                                        <button type="submit" style="margin-left: 12px;" class="btn btn-primary">更改</button>
                                                     </div>
                                                 </form>
 												<div v-if="debug">(( routine ))</div>
@@ -465,6 +465,11 @@
         		})
             },
             changeRoutine(){
+                for(let time in this.temp_routine['RemindTime']){
+                    if(time == "")
+                        return
+                }
+                this.modalHide();
                 $.ajax({
 			        url: "/change-routine",
         			method: "POST",
@@ -472,7 +477,7 @@
         			data: JSON.stringify(this.temp_routine),
         			async: true,
         			success: (data) => {
-        				console.log(data);
+        				alert(data.msg);
                         this.searchRoutine();
         			},
         			error: function (jqxhr, textStatus, errorThrown) {
