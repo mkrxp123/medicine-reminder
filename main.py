@@ -173,10 +173,10 @@ def user_init():
 @handler.add(JoinEvent)
 def handle_join(event):
   group_id = event.source.group_id
-  msg = TextSendMessage(text='使用說明:\n若要填寫提醒請輸入【網址】\n查看使用說明請輸入【說明】')
+  msg = TextSendMessage(text='使用說明:\n若要填寫提醒請輸入【網址】\n查看使用說明請輸入【說明】\n修改客製化訊息請輸入【客製化訊息】')
   line_bot_api.push_message(group_id, msg)
-  line_bot_api.reply_message(
-      event.reply_token,
+  line_bot_api.push_message(
+      group_id,
       FlexSendMessage(alt_text='請問您使用這個line bot的原因?',
                       contents={
                         "type": "bubble",
@@ -231,7 +231,73 @@ def handle_join(event):
                           0
                         }
                       }))
-
+  line_bot_api.push_message(
+      group_id,
+      FlexSendMessage(alt_text='請問您是否要使用手機號碼來進行提醒?',
+                      contents={
+                      "type": "bubble",
+                      "body": {
+                        "type": "box",
+                        "layout": "vertical",
+                        "contents": [
+                          {
+                            "type": "text",
+                            "text": "請問您是否要使用手機號碼來進行提醒?",
+                            "weight": "bold",
+                            "size": "md",
+                            "flex": 0,
+                            "margin": "none"
+                          },
+                          {
+                            "type": "text",
+                            "text": "(群組內的其他人可以打電話給您)",
+                            "weight": "bold",
+                            "size": "md",
+                            "flex": 0,
+                            "margin": "none"
+                          }
+                        ]
+                      },
+                      "footer": {
+                        "type": "box",
+                        "layout": "vertical",
+                        "spacing": "sm",
+                        "contents": [
+                          {
+                            "type": "button",
+                            "style": "link",
+                            "height": "sm",
+                            "action": {
+                              "type": "postback",
+                              "label": "是",
+                              "data": "phone_yes",
+                              "wrap": "true",
+                              "displayText": "我要使用手機號碼進行提醒"
+                            }
+                          },
+                          {
+                            "type": "button",
+                            "style": "link",
+                            "height": "sm",
+                            "action": {
+                              "type": "postback",
+                              "label": "否",
+                              "data": "phone_no",
+                              "wrap": "true",
+                              "displayText": "我不需要使用手機號碼進行提醒"
+                            }
+                          },
+                          {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [],
+                            "margin": "sm"
+                          }
+                        ],
+                        "flex": 0
+                      }
+                    }))
+  
 # see https://xiaosean.github.io/chatbot/2018-04-19-LineChatbot_usage/
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
@@ -329,7 +395,14 @@ def handle_postback(event):  #吃藥提醒按鈕回傳值
     postgres_manager.updateRemindTimeChecked(True, reminder_id)
     msg = TextSendMessage(text="您已服用藥物!\n又是個健康的一天:D")
     line_bot_api.reply_message(event.reply_token, msg)
-
+  elif 'phone_yes' in event.postback.data:
+    postgres_manager = PostgresBaseManager()
+    msg = TextSendMessage(text='請輸入您的手機號碼【Ex. 0987654321】')
+    line_bot_api.reply_message(event.reply_token, msg)
+    #postgres_manager.updatePhoneNumber(user_id, phoneNumber)
+  elif 'phone_no' in event.postback.data:
+    msg = TextSendMessage(text='好的，謝謝您的回覆!')
+    line_bot_api.reply_message(event.reply_token, msg)
 
 if __name__ == '__main__':
   postgres_manager = PostgresBaseManager()

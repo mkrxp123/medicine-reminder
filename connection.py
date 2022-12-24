@@ -84,6 +84,7 @@ WHERE public.\"Reminders\".\"GetMedicine\"=False and public.\"RemindTimes\".\"Ch
     cur.close()
     return list
 
+  #更新remind time checked狀態
   def updateRemindTimeChecked(self, checked, reminderID):
     cursor = self.conn.cursor()
     update = """UPDATE public.\"RemindTimes\" 
@@ -92,6 +93,17 @@ WHERE public.\"Reminders\".\"GetMedicine\"=False and public.\"RemindTimes\".\"Ch
     
     cursor.execute(update,(checked, reminderID))
     #print("complete update RemindTimeChecked!")
+    self.conn.commit()
+    cursor.close()
+
+  #更新user手機號碼
+  def updatePhoneNumber(self, userID, phoneNumber):
+    cursor = self.conn.cursor()
+    update = """UPDATE public.\"Users\" 
+                set \"PhoneNumber\" = %s
+                WHERE \"LineID\" = %s"""
+
+    cursor.execute(update, (phoneNumber, userID))
     self.conn.commit()
     cursor.close()
     
