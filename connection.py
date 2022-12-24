@@ -32,32 +32,11 @@ class PostgresBaseManager:
     self.conn.commit()
     cur.close()
 
-  def getPostgresdbData(self): #取得資料庫內資料
-    # https://ithelp.ithome.com.tw/articles/10268457
-    cur = self.conn.cursor()
-    sql="""
-SELECT public.\"Users\".\"UserName\", public.\"Users\".\"LineID\", public.\"Reminders\".\"ReminderID\", public.\"RemindTimes\".\"RemindTime\", public.\"RemindTimes\".\"RemindDate\"
-FROM (public.\"Users\" INNER JOIN public.\"Reminders\" 
-ON public.\"Users\".\"UserName\"=public.\"Reminders\".\"UserName\")
-INNER JOIN public.\"RemindTimes\" 
-ON public.\"Reminders\".\"ReminderID\"=public.\"RemindTimes\".\"ReminderID\"
-WHERE public.\"Reminders\".\"GetMedicine\"=False
-    """
-    cur.execute(sql)
-    rows = cur.fetchall()
-    #for row in rows:
-      #print("%s, %s, %s, %s, %s" %(str(row[0]), str(row[1]),str(row[2]), str(row[3]),str(row[4])))
-    message = "是時候該吃藥了，上方為藥品說明圖片。\n"
-    message+=("若完成服藥，請點底下確認鍵，否則將持續提醒!\n")
-    self.conn.commit()
-    cur.close()
-    return message
-
   #抓取吃藥提醒
   def checkRemindTime(self):
     cur = self.conn.cursor()
     sql="""
-SELECT  public.\"Reminders\".\"ReminderID\", public.\"RemindTimes\".\"RemindDate\", public.\"RemindTimes\".\"RemindTime\", public.\"Reminders\".\"Title\", public.\"Users\".\"LineID\"
+SELECT  public.\"Reminders\".\"ReminderID\", public.\"RemindTimes\".\"RemindDate\", public.\"RemindTimes\".\"RemindTime\", public.\"Reminders\".\"Title\", public.\"Users\".\"LineID\", public.\"RemindTimes\".\"RemindTimeID\"
 FROM (public.\"Users\" INNER JOIN public.\"Reminders\" 
 ON public.\"Users\".\"UserName\"=public.\"Reminders\".\"UserName\")
 INNER JOIN public.\"RemindTimes\" 
@@ -78,7 +57,7 @@ WHERE public.\"Reminders\".\"GetMedicine\"=False and public.\"RemindTimes\".\"Ch
       t = datetime.strptime((str(row[1])+" "+str(row[2])), "%Y-%m-%d %H:%M:%S")
       if(t<=t1 and t2<=t):
         print(t)
-        list.append([str(row[0]), str(row[3]), str(row[4])])
+        list.append([str(row[0]), str(row[3]), str(row[4]), str(row[5])])
       
     self.conn.commit()
     cur.close()
@@ -98,6 +77,32 @@ WHERE public.\"Reminders\".\"GetMedicine\"=False and public.\"RemindTimes\".\"Ch
 
   #更新user手機號碼
   def updatePhoneNumber(self, userID, phoneNumber):
+    cursor = self.conn.cursor()
+    update = """UPDATE public.\"Users\" 
+                set \"PhoneNumber\" = %s
+                WHERE \"LineID\" = %s"""
+
+    cursor.execute(update, (phoneNumber, userID))
+    self.conn.commit()
+    cursor.close()
+
+  #取得user手機號碼
+  def getPhoneNumber(self, userID):
+    cursor = self.conn.cursor()
+    sql = """SELECT public.\"Users\".\"LineID\", public.\"Users\".\"PhoneNumber\" 
+              FROM public.\"Users\""""
+    cursor.execute(sql)
+    data = cursor.fetchall()
+    list = []
+    for r in data:
+      if str(r[0]) == userID:
+        list.append([str(r[1])]) 
+    self.conn.commit()
+    cursor.close()
+    return list
+
+  #更新user對應的group id
+  def updateGroupID(self, userID, groupID):
     cursor = self.conn.cursor()
     update = """UPDATE public.\"Users\" 
                 set \"PhoneNumber\" = %s

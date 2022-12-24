@@ -147,7 +147,7 @@ class Database:
             Hospital=hospital,
             GroupID=group_id,
             GetMedicine=get_med,
-            PhoneNumber=phone_number,
+            #PhoneNumber=phone_number,
             Format=formatt)
         self.db.execute(insert_statement)
 
@@ -329,28 +329,27 @@ def pushremindMsg():
     if len(remindList):
         while (len(remindList)):
             #msg = postgres_manager.getPostgresdbData()
-            reTitle = remindList[0][1]
-            reLineID = remindList[0][2]  #要傳送提醒的使用者Line ID
-            reID = remindList[0][0]
-
+            reminderID = remindList[0][0]  
+            reminderTitle = remindList[0][1]
+            remindLineID = remindList[0][2]  #要傳送提醒的使用者Line ID
+            remindTimeID = remindList[0][3]
             #客製化訊息
-            type_number = postgres_manager.getReplyMsgType(reLineID)
+            type_number = postgres_manager.getReplyMsgType(remindLineID)
             msg = replyMsg(type_number)
             #print("msg:", msg)
-          
+
             buttons_template = ButtonsTemplate(
-                title=reTitle,
-                thumbnail_image_url=
-                'https://medlineplus.gov/images/Medicines.jpg',
+                title=reminderTitle,
+                thumbnail_image_url="https://medicine-reminder.r890910.repl.co/search-img?ReminderID=reminderID",
                 text=msg,
                 actions=[
                     PostbackAction(label='確認',
-                                   data='ateMedicine' + str(reID),
+                                   data='ateMedicine' + str(remindTimeID),
                                    display_text='已吃藥!')
                 ])
             template_message = TemplateSendMessage(alt_text='吃藥提醒',
                                                    template=buttons_template)
-            line_bot_api.push_message(reLineID, template_message)
+            line_bot_api.push_message(remindLineID, template_message)
             remindList.pop(0)
     return True
 

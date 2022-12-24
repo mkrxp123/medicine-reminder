@@ -173,8 +173,9 @@ def user_init():
 @handler.add(JoinEvent)
 def handle_join(event):
   group_id = event.source.group_id
-  msg = TextSendMessage(text='使用說明:\n若要填寫提醒請輸入【網址】\n查看使用說明請輸入【說明】\n修改客製化訊息請輸入【客製化訊息】')
-  line_bot_api.push_message(group_id, msg)
+  line_bot_api.push_message(
+    group_id, 
+    TextSendMessage(text='使用說明:\n若要填寫提醒請輸入【網址】\n查看使用說明請輸入【說明】\n修改客製化訊息請輸入【客製化訊息】'))
   line_bot_api.push_message(
       group_id,
       FlexSendMessage(alt_text='請問您使用這個line bot的原因?',
@@ -250,7 +251,7 @@ def handle_join(event):
                           },
                           {
                             "type": "text",
-                            "text": "(群組內的其他人可以打電話給您)",
+                            "text": "(讓群組內的其他人可以打電話給您)",
                             "weight": "bold",
                             "size": "md",
                             "flex": 0,
@@ -390,9 +391,9 @@ def handle_message(event):
 @handler.add(PostbackEvent)
 def handle_postback(event):  #吃藥提醒按鈕回傳值
   if 'ateMedicine' in event.postback.data:
-    reminder_id = int(event.postback.data[11:])
+    remindTime_id = int(event.postback.data[11:])
     postgres_manager = PostgresBaseManager()
-    postgres_manager.updateRemindTimeChecked(True, reminder_id)
+    postgres_manager.updateRemindTimeChecked(True, remindTime_id)
     msg = TextSendMessage(text="您已服用藥物!\n又是個健康的一天:D")
     line_bot_api.reply_message(event.reply_token, msg)
   elif 'phone_yes' in event.postback.data:
@@ -407,6 +408,7 @@ def handle_postback(event):  #吃藥提醒按鈕回傳值
 if __name__ == '__main__':
   postgres_manager = PostgresBaseManager()
   postgres_manager.runServerPostgresdb()
+  print(postgres_manager.getPhoneNumber("U5f1616ac0906ab6bac8cdc672c297991"))
   pushremindMsg()  #傳送吃藥提醒
   pushTomorrowGetMedicineTextMsg()  #傳送明天的領藥提醒
   pushTodayGetMedicineTextMsg()  #傳送30分鐘前的領藥提醒
