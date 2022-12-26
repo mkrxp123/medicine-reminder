@@ -27,6 +27,7 @@ sche = BackgroundScheduler(daemon=True)
 sche.add_job(pushremindMsg, 'interval', minutes=5)
 sche.start()
 
+group_id = 0
 
 # 接收 LINE 的資訊
 @app.route("/callback", methods=['POST'])
@@ -173,132 +174,105 @@ def user_init():
 @handler.add(JoinEvent)
 def handle_join(event):
   group_id = event.source.group_id
-  line_bot_api.push_message(
-    group_id, 
-    TextSendMessage(text='使用說明:\n若要填寫提醒請輸入【網址】\n查看使用說明請輸入【說明】\n修改客製化訊息請輸入【客製化訊息】'))
+  print(group_id)
   line_bot_api.push_message(
       group_id,
-      FlexSendMessage(alt_text='請問您使用這個line bot的原因?',
+      FlexSendMessage(alt_text='您好，謝謝您把「吃藥提醒小幫手」加進群組!',
                       contents={
                         "type": "bubble",
                         "body": {
-                          "type":
-                          "box",
-                          "layout":
-                          "vertical",
-                          "contents": [{
-                            "type": "text",
-                            "text": "請問您使用這個line bot的原因?",
-                            "weight": "bold",
-                            "size": "md"
-                          }]
-                        },
-                        "footer": {
-                          "type":
-                          "box",
-                          "layout":
-                          "vertical",
-                          "spacing":
-                          "sm",
-                          "contents": [{
-                            "type": "button",
-                            "style": "link",
-                            "height": "sm",
-                            "action": {
-                              "type": "message",
-                              "label": "1.身體健康",
-                              "text": "1.身體健康"
+                          "type": "box",
+                          "layout": "vertical",
+                          "contents": [
+                            {
+                              "type": "box",
+                              "layout": "vertical",
+                              "margin": "xs",
+                              "spacing": "md",
+                              "contents": [
+                                {
+                                  "type": "text",
+                                  "text": "您好，謝謝您把「吃藥提醒小幫手」加進群組!",
+                                  "wrap": True,
+                                  "size": "md",
+                                  "weight": "bold"
+                                },
+                                {
+                                  "type": "text",
+                                  "text": "本機器人可以根據您所設定的資訊，在對應時間傳送line訊息提醒您「吃藥/領藥」",
+                                  "wrap": True
+                                }
+                              ]
                             }
-                          }, {
-                            "type": "button",
-                            "style": "link",
-                            "height": "sm",
-                            "action": {
-                              "type": "message",
-                              "label": "2.怕家人擔心",
-                              "text": "2.怕家人擔心"
-                            }
-                          }, {
-                            "type": "button",
-                            "style": "link",
-                            "height": "sm",
-                            "action": {
-                              "type": "message",
-                              "label": "3.需要他人關心",
-                              "text": "3.需要他人關心"
-                            }
-                          }],
-                          "flex":
-                          0
+                          ]
                         }
                       }))
   line_bot_api.push_message(
       group_id,
-      FlexSendMessage(alt_text='請問您是否要使用手機號碼來進行提醒?',
+      FlexSendMessage(alt_text='首先，先請您點選下方網址',
                       contents={
-                      "type": "bubble",
-                      "body": {
-                        "type": "box",
-                        "layout": "vertical",
-                        "contents": [
-                          {
-                            "type": "text",
-                            "text": "請問您是否要使用手機號碼來進行提醒?",
-                            "weight": "bold",
-                            "size": "md",
-                            "flex": 0,
-                            "margin": "none"
-                          },
-                          {
-                            "type": "text",
-                            "text": "(讓群組內的其他人可以打電話給您進行提醒)",
-                            "weight": "bold",
-                            "size": "md",
-                            "flex": 0,
-                            "margin": "none"
-                          }
-                        ]
-                      },
-                      "footer": {
-                        "type": "box",
-                        "layout": "vertical",
-                        "spacing": "sm",
-                        "contents": [
-                          {
-                            "type": "button",
-                            "style": "link",
-                            "height": "sm",
-                            "action": {
-                              "type": "postback",
-                              "label": "是",
-                              "data": "phone_yes",
-                              "wrap": "true",
-                              "displayText": "我要使用手機號碼進行提醒"
+                        "type": "bubble",
+                        "body": {
+                          "type": "box",
+                          "layout": "vertical",
+                          "contents": [
+                            {
+                              "type": "box",
+                              "layout": "vertical",
+                              "margin": "xs",
+                              "spacing": "sm",
+                              "contents": [
+                                {
+                                  "type": "text",
+                                  "text": "首先，先請您點選下方網址，填寫您想要設定的提醒:",
+                                  "wrap": True
+                                },
+                                {
+                                  "type": "text",
+                                  "text": "網址",
+                                  "action": {
+                                    "type": "uri",
+                                    "label": "action",
+                                    "uri": "https://medicine-reminder.r890910.repl.co"
+                                  },
+                                  "color": "#2463EB",
+                                  "weight": "bold",
+                                  "style": "normal",
+                                  "decoration": "underline",
+                                  "align": "center",
+                                  "margin": "xl",
+                                  "size": "lg"
+                                },
+                                {
+                                  "type": "text",
+                                  "text": "填寫完成後，請點選下方的確認鍵，謝謝!",
+                                  "wrap": True,
+                                  "margin": "xl"
+                                }
+                              ]
                             }
-                          },
-                          {
-                            "type": "button",
-                            "style": "link",
-                            "height": "sm",
-                            "action": {
-                              "type": "postback",
-                              "label": "否",
-                              "data": "phone_no",
-                              "wrap": "true",
-                              "displayText": "我不需要使用手機號碼進行提醒"
+                          ]
+                        },
+                        "footer": {
+                          "type": "box",
+                          "layout": "vertical",
+                          "spacing": "xs",
+                          "contents": [
+                            {
+                              "type": "button",
+                              "style": "link",
+                              "action": {
+                                "type": "message",
+                                "label": "已填寫完成!",
+                                "text": "已填寫完成!"
+              
+                              },
+                              "height": "sm"
                             }
-                          },
-                          {
-                            "type": "box",
-                            "layout": "vertical",
-                            "contents": [],
-                            "margin": "sm"
-                          }
-                        ],
-                        "flex": 0
-                      }
-                    }))
-  
+                          ],
+                          "flex": 0
+                        }
+                      }))
 # see https://xiaosean.github.io/chatbot/2018-04-19-LineChatbot_usage/
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
@@ -309,10 +283,60 @@ def handle_message(event):
   if text == '網址':
     msg = TextSendMessage(text=f'https://liff.line.me/{config["Liff ID"]}')
     line_bot_api.reply_message(event.reply_token, msg)
+  elif text == 'test':
+    line_bot_api.reply_message(event.reply_token, FlexSendMessage(alt_text='img',
+                      contents={
+                      "type": "bubble",
+                      "hero": {
+                        "type": "image",
+                        "url": "https://medicine-reminder.r890910.repl.co/search-img?ReminderID=88",
+                        "size": "full",
+                        "aspectRatio": "20:13",
+                        "aspectMode": "cover",
+                        "action": {
+                          "type": "uri",
+                          "uri": "https://medicine-reminder.r890910.repl.co/search-img?ReminderID=88"
+                        }
+                      }
+                    }))
   elif text == '說明':
-    msg = TextSendMessage(text='使用說明:\n若要填寫提醒請輸入【網址】\n查看使用說明請輸入【說明】')
-    line_bot_api.reply_message(event.reply_token, msg)
+    line_bot_api.reply_message(event.reply_token, FlexSendMessage(alt_text='使用說明',
+                      contents={
+                        "type": "bubble",
+                        "body": {
+                          "type": "box",
+                          "layout": "vertical",
+                          "contents": [
+                            {
+                              "type": "text",
+                              "text": "使用說明",
+                              "size": "lg",
+                              "weight": "bold"
+                            },
+                            {
+                              "type": "text",
+                              "text": "- 若要填寫提醒請輸入【網址】",
+                              "margin": "xl"
+                            },
+                            {
+                              "type": "text",
+                              "text": "- 查看使用說明請輸入【說明】"
+                            },
+                            {
+                              "type": "text",
+                              "text": "- 修改客製化訊息請輸入【客製化訊息】",
+                              "wrap": True
+                            },
+                            {
+                              "type": "text",
+                              "text": "- 修改手機號碼請輸入【改手機】",
+                              "wrap": True
+                            }
+                          ]
+                        }
+                      }))
   elif text == "客製化訊息":
+    user_name = database.GetUserNamefromLineID(user_id)
     line_bot_api.reply_message(
       event.reply_token,
       FlexSendMessage(alt_text='請問您使用這個line bot的原因?',
@@ -325,7 +349,7 @@ def handle_message(event):
                           "vertical",
                           "contents": [{
                             "type": "text",
-                            "text": "請問您使用這個line bot的原因?",
+                            "text": user_name + ", 請問您使用這個line bot的原因?",
                             "weight": "bold",
                             "size": "md"
                           }]
@@ -369,6 +393,174 @@ def handle_message(event):
                           0
                         }
                       }))  
+  elif text == "改手機":
+    user_name = database.GetUserNamefromLineID(user_id)
+    line_bot_api.reply_message(event.reply_token, FlexSendMessage(alt_text='請問您是否要使用手機號碼來進行提醒?',
+                      contents={
+                      "type": "bubble",
+                      "body": {
+                        "type": "box",
+                        "layout": "vertical",
+                        "contents": [
+                          {
+                            "type": "text",
+                            "text": user_name + ", 請問您是否要使用手機號碼來進行提醒?",
+                            "weight": "bold",
+                            "size": "md",
+                            "flex": 0,
+                            "margin": "none",
+                            "wrap": True
+                          },
+                          {
+                            "type": "text",
+                            "text": "(讓群組內的其他人可以打電話給您進行提醒)",
+                            "size": "md",
+                            "flex": 0,
+                            "margin": "md",
+                            "wrap": True
+                          }
+                        ]
+                      },
+                      "footer": {
+                        "type": "box",
+                        "layout": "vertical",
+                        "spacing": "sm",
+                        "contents": [
+                          {
+                            "type": "button",
+                            "style": "link",
+                            "height": "sm",
+                            "action": {
+                              "type": "message",
+                              "label": "是",
+                              "text": "我要使用手機號碼進行提醒",
+                              "wrap": True
+                            }
+                          },
+                          {
+                            "type": "button",
+                            "style": "link",
+                            "height": "sm",
+                            "action": {
+                              "type": "message",
+                              "label": "否",
+                              "text": "我不需要使用手機號碼進行提醒",
+                              "wrap": True
+                            }
+                          },
+                          {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [],
+                            "margin": "sm"
+                          }
+                        ],
+                        "flex": 0
+                      }
+                    }))
+  elif text == "已填寫完成!":
+    user_name = database.GetUserNamefromLineID(user_id)
+    line_bot_api.reply_message(event.reply_token, FlexSendMessage(alt_text='謝謝您的填寫!',
+                     contents={
+                        "type": "bubble",
+                        "body": {
+                          "type": "box",
+                          "layout": "vertical",
+                          "contents": [
+                            {
+                              "type": "text",
+                              "text": user_name + ", 謝謝您的填寫!",
+                              "size": "md",
+                              "weight": "bold"
+                            },
+                            {
+                              "type": "text",
+                              "text": "當到達您所設定的提醒時間時，我會傳訊息通知您!",
+                              "margin": "md",
+                              "wrap": True
+                            },
+                            {
+                              "type": "text",
+                              "text": "為了增進提醒功能，接下來我會問您幾個問題，若準備好請按下方按鈕",
+                              "wrap": True,
+                              "margin": "xl"
+                            }
+                          ]
+                        },
+                        "footer": {
+                          "type": "box",
+                          "layout": "vertical",
+                          "contents": [
+                            {
+                              "type": "button",
+                              "action": {
+                                "type": "message",
+                                "label": "開始問題",
+                                "text": "開始問題"
+                              }
+                            }
+                          ]
+                        }
+                      }))
+  elif text == "開始問題":
+    print(group_id)
+    user_name = database.GetUserNamefromLineID(user_id)
+    line_bot_api.reply_message(event.reply_token,
+      FlexSendMessage(alt_text='請問您使用這個line bot的原因?',
+                      contents={
+                        "type": "bubble",
+                        "body": {
+                          "type":
+                          "box",
+                          "layout":
+                          "vertical",
+                          "contents": [{
+                            "type": "text",
+                            "text": user_name + ", 請問您使用這個line bot的原因為?",
+                            "weight": "bold",
+                            "size": "md",
+                            "wrap": True
+                          }]
+                        },
+                        "footer": {
+                          "type":
+                          "box",
+                          "layout":
+                          "vertical",
+                          "spacing":
+                          "sm",
+                          "contents": [{
+                            "type": "button",
+                            "style": "link",
+                            "height": "sm",
+                            "action": {
+                              "type": "message",
+                              "label": "1.身體健康",
+                              "text": "1.身體健康"
+                            }
+                          }, {
+                            "type": "button",
+                            "style": "link",
+                            "height": "sm",
+                            "action": {
+                              "type": "message",
+                              "label": "2.怕家人擔心",
+                              "text": "2.怕家人擔心"
+                            }
+                          }, {
+                            "type": "button",
+                            "style": "link",
+                            "height": "sm",
+                            "action": {
+                              "type": "message",
+                              "label": "3.需要他人關心",
+                              "text": "3.需要他人關心"
+                            }
+                          }],
+                          "flex":
+                          0
+                        }
+                      }))
   elif text == "1":
     postgres_manager = PostgresBaseManager()
     ontime_times = postgres_manager.getCheck(user_id)
@@ -378,21 +570,359 @@ def handle_message(event):
   elif text == "1.身體健康":
     postgres_manager = PostgresBaseManager()
     postgres_manager.updateReplyMsgType(1, user_id)
+    list = postgres_manager.getPhoneNumber(user_id)
+    if ('09' in str(list[0])):
+      msg = TextSendMessage(text="已為您客製化提醒訊息~")
+      line_bot_api.reply_message(event.reply_token, msg)
+    else:
+      user_name = database.GetUserNamefromLineID(user_id)
+      line_bot_api.reply_message(event.reply_token, FlexSendMessage(alt_text='請問您是否要使用手機號碼來進行提醒?',
+                      contents={
+                      "type": "bubble",
+                      "body": {
+                        "type": "box",
+                        "layout": "vertical",
+                        "contents": [
+                          {
+                            "type": "text",
+                            "text": user_name + ", 請問您是否要使用手機號碼來進行提醒?",
+                            "weight": "bold",
+                            "size": "md",
+                            "flex": 0,
+                            "margin": "none",
+                            "wrap": True
+                          },
+                          {
+                            "type": "text",
+                            "text": "(讓群組內的其他人可以打電話給您進行提醒)",
+                            "size": "md",
+                            "flex": 0,
+                            "margin": "md",
+                            "wrap": True
+                          }
+                        ]
+                      },
+                      "footer": {
+                        "type": "box",
+                        "layout": "vertical",
+                        "spacing": "sm",
+                        "contents": [
+                          {
+                            "type": "button",
+                            "style": "link",
+                            "height": "sm",
+                            "action": {
+                              "type": "message",
+                              "label": "是",
+                              "text": "我要使用手機號碼進行提醒",
+                              "wrap": True
+                            }
+                          },
+                          {
+                            "type": "button",
+                            "style": "link",
+                            "height": "sm",
+                            "action": {
+                              "type": "message",
+                              "label": "否",
+                              "text": "我不需要使用手機號碼進行提醒",
+                              "wrap": True
+                            }
+                          },
+                          {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [],
+                            "margin": "sm"
+                          }
+                        ],
+                        "flex": 0
+                      }
+                    }))
   elif text == "2.怕家人擔心":
     postgres_manager = PostgresBaseManager()
     postgres_manager.updateReplyMsgType(2, user_id)
+    list = postgres_manager.getPhoneNumber(user_id)
+    if ('09' in str(list[0])):
+      msg = TextSendMessage(text="已為您客製化提醒訊息~")
+      line_bot_api.reply_message(event.reply_token, msg)
+    else:
+      user_name = database.GetUserNamefromLineID(user_id)
+      line_bot_api.reply_message(event.reply_token, FlexSendMessage(alt_text='請問您是否要使用手機號碼來進行提醒?',
+                      contents={
+                      "type": "bubble",
+                      "body": {
+                        "type": "box",
+                        "layout": "vertical",
+                        "contents": [
+                          {
+                            "type": "text",
+                            "text": user_name + ", 請問您是否要使用手機號碼來進行提醒?",
+                            "weight": "bold",
+                            "size": "md",
+                            "flex": 0,
+                            "margin": "none",
+                            "wrap": True
+                          },
+                          {
+                            "type": "text",
+                            "text": "(讓群組內的其他人可以打電話給您進行提醒)",
+                            "size": "md",
+                            "flex": 0,
+                            "margin": "md",
+                            "wrap": True
+                          }
+                        ]
+                      },
+                      "footer": {
+                        "type": "box",
+                        "layout": "vertical",
+                        "spacing": "sm",
+                        "contents": [
+                          {
+                            "type": "button",
+                            "style": "link",
+                            "height": "sm",
+                            "action": {
+                              "type": "message",
+                              "label": "是",
+                              "text": "我要使用手機號碼進行提醒",
+                              "wrap": True
+                            }
+                          },
+                          {
+                            "type": "button",
+                            "style": "link",
+                            "height": "sm",
+                            "action": {
+                              "type": "message",
+                              "label": "否",
+                              "text": "我不需要使用手機號碼進行提醒",
+                              "wrap": True
+                            }
+                          },
+                          {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [],
+                            "margin": "sm"
+                          }
+                        ],
+                        "flex": 0
+                      }
+                    }))
   elif text == "3.需要他人關心":
     postgres_manager = PostgresBaseManager()
     postgres_manager.updateReplyMsgType(3, user_id)
+    list = postgres_manager.getPhoneNumber(user_id)
+    if ('09' in str(list[0])):
+      msg = TextSendMessage(text="已為您客製化提醒訊息~")
+      line_bot_api.reply_message(event.reply_token, msg)
+    else:
+      user_name = database.GetUserNamefromLineID(user_id)
+      line_bot_api.reply_message(event.reply_token, FlexSendMessage(alt_text='請問您是否要使用手機號碼來進行提醒?',
+                      contents={
+                      "type": "bubble",
+                      "body": {
+                        "type": "box",
+                        "layout": "vertical",
+                        "contents": [
+                          {
+                            "type": "text",
+                            "text": user_name + ", 請問您是否要使用手機號碼來進行提醒?",
+                            "weight": "bold",
+                            "size": "md",
+                            "flex": 0,
+                            "margin": "none",
+                            "wrap": True
+                          },
+                          {
+                            "type": "text",
+                            "text": "(讓群組內的其他人可以打電話給您進行提醒)",
+                            "size": "md",
+                            "flex": 0,
+                            "margin": "md",
+                            "wrap": True
+                          }
+                        ]
+                      },
+                      "footer": {
+                        "type": "box",
+                        "layout": "vertical",
+                        "spacing": "sm",
+                        "contents": [
+                          {
+                            "type": "button",
+                            "style": "link",
+                            "height": "sm",
+                            "action": {
+                              "type": "message",
+                              "label": "是",
+                              "text": "我要使用手機號碼進行提醒",
+                              "wrap": True
+                            }
+                          },
+                          {
+                            "type": "button",
+                            "style": "link",
+                            "height": "sm",
+                            "action": {
+                              "type": "message",
+                              "label": "否",
+                              "text": "我不需要使用手機號碼進行提醒",
+                              "wrap": True
+                            }
+                          },
+                          {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [],
+                            "margin": "sm"
+                          }
+                        ],
+                        "flex": 0
+                      }
+                    }))
+  elif text == "我要使用手機號碼進行提醒":
+    user_name = database.GetUserNamefromLineID(user_id)
+    line_bot_api.reply_message(event.reply_token,
+      FlexSendMessage(alt_text='請在訊息欄輸入您的手機號碼',
+                      contents={
+                        "type": "bubble",
+                        "body": {
+                          "type": "box",
+                          "layout": "vertical",
+                          "contents": [
+                            {
+                              "type": "text",
+                              "text": user_name + ", 請在訊息欄輸入您的手機號碼",
+                              "margin": "sm",
+                              "wrap": True,
+                              "weight": "bold"
+                            },
+                            {
+                              "type": "text",
+                              "text": "Ex. 0912345678",
+                              "wrap": True,
+                              "margin": "sm",
+                              "color": "#2894FF"
+                            }
+                          ]
+                        }
+                      }))
+  elif text == "我不需要使用手機號碼進行提醒":
+    user_name = database.GetUserNamefromLineID(user_id)
+    line_bot_api.reply_message(event.reply_token,
+      FlexSendMessage(alt_text='謝謝您的回覆!',
+                      contents={
+                        "type": "bubble",
+                        "body": {
+                          "type": "box",
+                          "layout": "vertical",
+                          "contents": [
+                            {
+                              "type": "text",
+                              "text": user_name + ", 謝謝您的回覆!",
+                              "margin": "sm",
+                              "wrap": True,
+                              "weight": "bold"
+                            },
+                            {
+                              "type": "text",
+                              "text": "以上是所有的問題，小幫手會依據您剛剛填寫的答案來客製化提醒",
+                              "margin": "lg",
+                              "wrap": True
+                            },
+                            {
+                              "type": "text",
+                              "text": "若之後想修改設定，可以在訊息欄輸入【說明】查看所有指令",
+                              "wrap": True,
+                              "margin": "md"
+                            },
+                            {
+                              "type": "text",
+                              "text": "修改提醒的網址如下:",
+                              "margin": "xl"
+                            },
+                            {
+                              "type": "text",
+                              "text": "網址",
+                              "size": "lg",
+                              "color": "#2463EB",
+                              "weight": "bold",
+                              "wrap": True,
+                              "decoration": "underline",
+                              "align": "center",
+                              "margin": "xl",
+                              "action": {
+                                "type": "uri",
+                                "label": "action",
+                                "uri": "https://medicine-reminder.r890910.repl.co"
+                              }
+                            }
+                          ]
+                        }
+                      }))
   elif "09" in text:
     phoneNumber = text
     postgres_manager = PostgresBaseManager()
     postgres_manager.updatePhoneNumber(user_id, phoneNumber)
-    msg = TextSendMessage(text="已收到您的手機號碼")
-    line_bot_api.reply_message(event.reply_token, msg)
+    user_name = database.GetUserNamefromLineID(user_id)
+    line_bot_api.reply_message(event.reply_token,
+      FlexSendMessage(alt_text='已收到您的手機號碼!',
+                      contents={
+                        "type": "bubble",
+                        "body": {
+                          "type": "box",
+                          "layout": "vertical",
+                          "contents": [
+                            {
+                              "type": "text",
+                              "text": user_name + ", 已收到您的手機號碼!",
+                              "margin": "sm",
+                              "wrap": True,
+                              "weight": "bold"
+                            },
+                            {
+                              "type": "text",
+                              "text": "以上是所有的問題，小幫手會依據您剛剛填寫的答案來客製化提醒",
+                              "margin": "lg",
+                              "wrap": True
+                            },
+                            {
+                              "type": "text",
+                              "text": "若之後想修改設定，可以在訊息欄輸入【說明】查看所有指令",
+                              "wrap": True,
+                              "margin": "md"
+                            },
+                            {
+                              "type": "text",
+                              "text": "修改提醒的網址如下:",
+                              "margin": "xl"
+                            },
+                            {
+                              "type": "text",
+                              "text": "網址",
+                              "size": "lg",
+                              "color": "#2463EB",
+                              "weight": "bold",
+                              "wrap": True,
+                              "decoration": "underline",
+                              "align": "center",
+                              "margin": "xl",
+                              "action": {
+                                "type": "uri",
+                                "label": "action",
+                                "uri": "https://medicine-reminder.r890910.repl.co"
+                              }
+                            }
+                          ]
+                        }
+                      }))  
   else:
     postgres_manager = PostgresBaseManager()
     postgres_manager.updateReplyMsgType(0, user_id)
+
 
 
 @handler.add(PostbackEvent)
@@ -403,19 +933,20 @@ def handle_postback(event):  #吃藥提醒按鈕回傳值
     postgres_manager.updateRemindTimeChecked(True, remindTime_id)
     msg = TextSendMessage(text="您已服用藥物!\n又是個健康的一天:D")
     line_bot_api.reply_message(event.reply_token, msg)
-  elif 'phone_yes' in event.postback.data:
-    postgres_manager = PostgresBaseManager()
-    msg = TextSendMessage(text='請輸入您的手機號碼【Ex. 0987654321】')
-    line_bot_api.reply_message(event.reply_token, msg)
-  elif 'phone_no' in event.postback.data:
-    msg = TextSendMessage(text='好的，謝謝您的回覆!')
-    line_bot_api.reply_message(event.reply_token, msg)
 
 if __name__ == '__main__':
   postgres_manager = PostgresBaseManager()
   postgres_manager.runServerPostgresdb()
   pushremindMsg()  #傳送吃藥提醒
-  pushTomorrowGetMedicineTextMsg()  #傳送明天的領藥提醒
+
+  #取得日期
+  dt1 = datetime.utcnow().replace(tzinfo=timezone.utc)
+  dt2 = dt1.astimezone(timezone(timedelta(hours=8)))  # 轉換時區 -> 東八區
+  time = dt2.strftime("%H:%M:00")
+  #print("time: ", time)
+
+  if str(time) == "23:00:00":
+    pushTomorrowGetMedicineTextMsg()  #傳送明天的領藥提醒
   pushTodayGetMedicineTextMsg()  #傳送30分鐘前的領藥提醒
   pushGetMedicineFlexMsg()  #傳送領藥提醒check box
   #pushOntimeTakeMedicine() #傳送本日準時吃藥的次數

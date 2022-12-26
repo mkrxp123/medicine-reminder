@@ -11,6 +11,7 @@ from sqlalchemy.sql.expression import func
 from sqlalchemy.orm import sessionmaker
 from datetime import date, timedelta, datetime
 
+group_id = "Cd77b64937d80d148c9e1f2ccbf947eee"
 
 class Database:
 
@@ -329,17 +330,19 @@ def pushremindMsg():
             #msg = postgres_manager.getPostgresdbData()
             reminderID = remindList[0][0]
             reminderTitle = remindList[0][1]
-            remindLineID = remindList[0][2]  #要傳送提醒的使用者Line ID
+            remindLineID = group_id
+            #remindLineID = remindList[0][2]  #要傳送提醒的使用者Line ID
             remindTimeID = remindList[0][3]
             #客製化訊息
             type_number = postgres_manager.getReplyMsgType(remindLineID)
             msg = replyMsg(type_number)
             #print("msg:", msg)
+            url = "https://medicine-reminder.r890910.repl.co/search-img?ReminderID=" + reminderID
+            print(url)
 
             buttons_template = ButtonsTemplate(
                 title=reminderTitle,
-                thumbnail_image_url=
-                "https://medicine-reminder.r890910.repl.co/search-img?ReminderID=reminderID",
+                thumbnail_image_url=url,
                 text=msg,
                 actions=[
                     PostbackAction(label='確認',
@@ -348,6 +351,8 @@ def pushremindMsg():
                 ])
             template_message = TemplateSendMessage(alt_text='吃藥提醒',
                                                    template=buttons_template)
+            
+            #line_bot_api.push_message(remindLineID, ImageSendMessage(original_content_url = url, preview_image_url = url))
             line_bot_api.push_message(remindLineID, template_message)
             remindList.pop(0)
     return True
@@ -362,7 +367,8 @@ def pushTomorrowGetMedicineTextMsg():
 
     if len(List):
         for r in List:
-            reLineID = r[5]
+            reLineID = group_id
+            #reLineID = r[5]
             #msg = '明日請記得領藥!\n' + '提醒領藥者 : ' + str(
             #r[0]) + '\n' + '領取藥品名稱 : ' + str(
             #r[2]) + '\n' + '領取時間 : ' + str(r[3]) + ' ' + str(
@@ -509,7 +515,8 @@ def pushTodayGetMedicineTextMsg():
             remindTime = (dt2 +
                           timedelta(minutes=-30)).strftime("%Y-%m-%d %H:%M:00")
             #print("remind time : ", remindTime)
-            reLineID = r[5]
+            #reLineID = r[5]
+            reLineID = group_id
 
             if str(r[3]) + " " + str(r[4]) == str(remindTime):
                 #msg = '請記得於30分鐘後至診所/醫院領藥!\n' + '提醒領藥者 : ' + str(
@@ -673,7 +680,8 @@ def pushGetMedicineFlexMsg():
             now = dt2.strftime("%Y-%m-%d %H:%M:00")
             #print("now : ", now)
 
-            reLineID = r[5]  #要傳送提醒的使用者Line ID
+            reLineID = group_id
+            #reLineID = r[5]  #要傳送提醒的使用者Line ID
             #客製化訊息
             #type_number = postgres_manager.getReplyMsgType(reLineID)
             #msg = replyMsg(type_number)
@@ -844,7 +852,8 @@ def pushOntimeTakeMedicine():
 
     if len(List):
         for r in List:
-            reLineID = r[0]
+            reLineID = group_id
+            #reLineID = r[0]
             #print("LineID: ", reLineID)
             ontime_times = postgres_manager.getCheck(reLineID)
             msg = '恭喜您~今天準時吃藥' + str(ontime_times) + '次\n' + '請繼續保持!'

@@ -166,14 +166,14 @@ WHERE public.\"Reminders\".\"GetMedicine\"=False and public.\"RemindTimes\".\"Ch
     dt2 = dt1.astimezone(timezone(timedelta(hours=8)))  # 轉換時區 -> 東八區
     #print("dt2: ", dt2)
     #dt3 = (dt2 + timedelta(hours = -1) + timedelta(seconds = -1*dt2.second)).strftime("%H:%M:%S")   #輸出比現在時間早半小時
-    tomorrow = (dt2 + timedelta(days=1)).strftime("%Y-%m-%d %H:%M:00")   #輸出比現在時間早一天
+    tomorrow = (dt2 + timedelta(days=1)).strftime("%Y-%m-%d")   #輸出比現在時間早一天
     #print("tomorrow : ", tomorrow)
 
     list = []
     for r in data2: 
-      if str(r[3])+" "+str(r[4]) == str(tomorrow):
+      if str(r[3]) == str(tomorrow):
         list.append([str(r[0]), str(r[1]), str(r[2]), str(r[3]), str(r[4]), str(r[5]), str(r[6])])
-        #print(str(r[0]), str(r[1]), str(r[2]), str(r[3]), str(r[4]), str(r[5]), str(r[6]))
+        print(str(r[0]), str(r[1]), str(r[2]), str(r[3]), str(r[4]), str(r[5]), str(r[6]))
 
     self.conn.commit()
     cursor.close()
