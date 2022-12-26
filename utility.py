@@ -36,11 +36,16 @@ class Database:
             #setup schema of table
             self.meta = MetaData(self.db)
             self.Users = Table('Users', self.meta, Column('LineID', String),
-                               Column('UserName', String))
+                               Column('UserName', String),
+                               Column('ReplyMsgType', Integer),
+                               Column('PhoneNumber', String))
             self.RemindTimes = Table('RemindTimes', self.meta,
                                      Column('ReminderID', Integer),
                                      Column('RemindTime', Time),
-                                     Column('RemindDate', Date))
+                                     Column('RemindDate', Date),
+                                     Column('Checked', Boolean),
+                                     Column('RemindTimeID', Integer),
+                                     Column('SendTimes', Integer))
             self.Reminders = Table('Reminders', self.meta,
                                    Column('Title', String),
                                    Column('ReminderID', Integer),
@@ -53,7 +58,7 @@ class Database:
                                    Column('Picture', String))
             self.RemindGroups = Table('RemindGroups', self.meta,
                                       Column('GroupID', String),
-                                      Column('GroupName', String))
+                                      Column('LineID', String))
             Session = sessionmaker(bind=self.db)
             self.session = Session()
             self.reminder_id = self.GetLargestReminderID() + 1
