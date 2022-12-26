@@ -2,7 +2,7 @@ from linebot import LineBotApi, WebhookHandler
 from linebot.models import TextSendMessage, ImageSendMessage, MessageEvent, TextMessage, TemplateSendMessage, ButtonsTemplate, PostbackAction, MessageTemplateAction, PostbackEvent, JoinEvent, FlexSendMessage
 from linebot.exceptions import LineBotApiError, InvalidSignatureError
 from flask import Flask, request, abort, render_template, redirect, url_for, jsonify, send_file
-from utility import getKey, ajaxResponse, timetable, Database, pushremindMsg, pushGetMedicineFlexMsg, pushTomorrowGetMedicineTextMsg, pushTodayGetMedicineTextMsg, pushOntimeTakeMedicine
+from utility import getKey, ajaxResponse, timetable, Database, pushremindMsg, pushGetMedicineFlexMsg, pushTomorrowGetMedicineTextMsg, pushTodayGetMedicineTextMsg, pushOntimeTakeMedicine, pushresetMsg
 from rich_menu import rich_menu
 import re
 from flask_sqlalchemy import SQLAlchemy
@@ -24,11 +24,18 @@ app = Flask(__name__)
 database = Database()
 
 sche = BackgroundScheduler(daemon=True)
-sche.add_job(pushremindMsg, 'interval', minutes=5)
+sche.add_job(pushremindMsg, 'interval', seconds=10)
+#sche.add_job(pushTomorrowGetMedicineTextMsg, 'interval', seconds=10)
+#sche.add_job(pushTodayGetMedicineTextMsg, 'interval', seconds=10)
+#sche.add_job(pushGetMedicineFlexMsg, 'interval', seconds=10)
+#sche.add_job(pushremindMsg, 'interval', minutes=1)
+sche.add_job(pushTomorrowGetMedicineTextMsg, 'interval', seconds=10)
+sche.add_job(pushTodayGetMedicineTextMsg, 'interval', seconds=10)
+sche.add_job(pushGetMedicineFlexMsg, 'interval', seconds=10)
+sche.add_job(pushresetMsg, 'interval', seconds=10)
 sche.start()
 
 group_id = 0
-
 
 # 接收 LINE 的資訊
 @app.route("/callback", methods=['POST'])
@@ -822,13 +829,13 @@ def handle_message(event):
                                     "vertical",
                                     "contents": [{
                                         "type": "text",
-                                        "text": user_name + ", 請在訊息欄輸入您的手機號碼",
+                                        "text": user_name + ", 請在訊息欄輸入您的手機號碼(格式如下)",
                                         "margin": "sm",
                                         "wrap": True,
                                         "weight": "bold"
                                     }, {
                                         "type": "text",
-                                        "text": "Ex. 0912345678",
+                                        "text": "Ex. 0912-345-678",
                                         "wrap": True,
                                         "margin": "sm",
                                         "color": "#2894FF"
@@ -952,10 +959,17 @@ def handle_postback(event):  #吃藥提醒按鈕回傳值
     if 'ateMedicine' in event.postback.data:
         remindTime_id = int(event.postback.data[11:])
         postgres_manager = PostgresBaseManager()
+        print(str(remindTime_id) + "_True")
         postgres_manager.updateRemindTimeChecked(True, remindTime_id)
         msg = TextSendMessage(text="您已服用藥物!\n又是個健康的一天:D")
         line_bot_api.reply_message(event.reply_token, msg)
-
+    elif 'tookMedicine' in event.postback.data:
+        remindTime_id = int(event.postback.data[12:])
+        postgres_manager = PostgresBaseManager()
+        postgres_manager.updateRemindTimeChecked(True, remindTime_id)
+        msg = TextSendMessage(text="確認已領取藥品~")
+        line_bot_api.reply_message(event.reply_token, msg)
+        
 
 if __name__ == '__main__':
     postgres_manager = PostgresBaseManager()
@@ -968,10 +982,11 @@ if __name__ == '__main__':
     time = dt2.strftime("%H:%M:00")
     #print("time: ", time)
 
-    if str(time) == "23:00:00":
-        pushTomorrowGetMedicineTextMsg()  #傳送明天的領藥提醒
+    #if str(time) == "20:53:00":
+    pushTomorrowGetMedicineTextMsg()  #傳送明天的領藥提醒
     pushTodayGetMedicineTextMsg()  #傳送30分鐘前的領藥提醒
     pushGetMedicineFlexMsg()  #傳送領藥提醒check box
+    pushresetMsg() #傳送重新設定領藥的提醒
     #pushOntimeTakeMedicine() #傳送本日準時吃藥的次數
     app.debug = True
     app.run(host='0.0.0.0', port=8080, use_reloader=False)

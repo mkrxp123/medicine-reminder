@@ -12,7 +12,8 @@ from sqlalchemy.orm import sessionmaker
 from datetime import date, timedelta, datetime
 
 group_id = "Cd77b64937d80d148c9e1f2ccbf947eee"
-
+#group_id = "Cd77b64937d80d148c9e1f2ccbf947eee"
+#group_id = "C746700ffec937db8dfa4197ad15ca16a"
 class Database:
 
     user = 'postgres'
@@ -329,37 +330,473 @@ def pushremindMsg():
     postgres_manager = PostgresBaseManager()
     remindList = postgres_manager.checkRemindTime()
     # send remind message
-    print(len(remindList))
+    print("remindList length:"+str(len(remindList)))
     if len(remindList):
         while (len(remindList)):
             #msg = postgres_manager.getPostgresdbData()
             reminderID = remindList[0][0]
-            reminderTitle = remindList[0][1]
+            reminderDate = remindList[0][1]
+            reminderTime = remindList[0][2]
+            reminderTitle = remindList[0][3]
             remindLineID = group_id
-            #remindLineID = remindList[0][2]  #要傳送提醒的使用者Line ID
-            remindTimeID = remindList[0][3]
+            #remindLineID = remindList[0][4]  #要傳送提醒的使用者Line ID
+            remindTimeID = remindList[0][5]
+            userName = remindList[0][6]
+            phoneNumber = remindList[0][8]
+            phoneNumber_url = "tel:+886-" + phoneNumber[1:]
+            print(phoneNumber_url)
             #客製化訊息
             type_number = postgres_manager.getReplyMsgType(remindLineID)
-            msg = replyMsg(type_number)
+            reply_msg = replyMsg(type_number)
             #print("msg:", msg)
             url = "https://medicine-reminder.r890910.repl.co/search-img?ReminderID=" + reminderID
             print(url)
 
-            buttons_template = ButtonsTemplate(
-                title=reminderTitle,
-                thumbnail_image_url=url,
-                text=msg,
-                actions=[
-                    PostbackAction(label='確認',
-                                   data='ateMedicine' + str(remindTimeID),
-                                   display_text='已吃藥!')
-                ])
-            template_message = TemplateSendMessage(alt_text='吃藥提醒',
-                                                   template=buttons_template)
-            
-            #line_bot_api.push_message(remindLineID, ImageSendMessage(original_content_url = url, preview_image_url = url))
-            line_bot_api.push_message(remindLineID, template_message)
+            #更新sentTimes
+            current_sendTimes = remindList[0][7]
+            remindtimeID = remindTimeID
+
+            if current_sendTimes == 0:
+              line_bot_api.push_message(
+                      remindLineID,
+                      FlexSendMessage(alt_text='吃藥提醒!',
+                                      contents={
+                                          "type": "bubble",
+                                          "hero": {
+                                                  "type": "image",
+                                                  "url": url,
+                                                  "size": "full",
+                                                  "aspectRatio": "20:13",
+                                                  "aspectMode": "cover",
+                                                  "action": {
+                                                    "type": "uri",
+                                                    "uri": url
+                                                  }
+                                              },
+                                          "body": {
+                                              "type":
+                                              "box",
+                                              "layout":
+                                              "vertical",
+                                              "contents": [{
+                                                  "type": "text",
+                                                  "text": str(userName)+"的吃藥提醒",
+                                                  "weight": "bold",
+                                                  "size": "xl",
+                                                  "wrap": True
+                                              },
+                                          
+                                              {
+                                                  "type":
+                                                  "box",
+                                                  "layout":
+                                                  "vertical",
+                                                  "margin":
+                                                  "lg",
+                                                  "spacing":
+                                                  "sm",
+                                                  "contents": [{
+                                                      "type":
+                                                      "box",
+                                                      "layout":
+                                                      "baseline",
+                                                      "spacing":
+                                                      "sm",
+                                                      
+                                                  }, {
+                                                      "type":
+                                                      "box",
+                                                      "layout":
+                                                      "baseline",
+                                                      "spacing":
+                                                      "sm",
+                                                      "contents": [{
+                                                          "type": "text",
+                                                          "text": "藥品名稱 :",
+                                                          "color": "#aaaaaa",
+                                                          "size": "sm",
+                                                          "flex": 0
+                                                      }, {
+                                                          "type":
+                                                          "text",
+                                                          "text":
+                                                          str(reminderTitle),
+                                                          "color":
+                                                          "#666666",
+                                                          "size":
+                                                          "sm",
+                                                          "flex":
+                                                          5
+                                                      }]
+                                                  }, {
+                                                      "type":
+                                                      "box",
+                                                      "layout":
+                                                      "baseline",
+                                                      "spacing":
+                                                      "sm",
+                                                      "contents": [{
+                                                          "type": "text",
+                                                          "text": "吃藥時間 :",
+                                                          "color": "#aaaaaa",
+                                                          "size": "sm",
+                                                          "flex": 0
+                                                      }, {
+                                                          "type":
+                                                          "text",
+                                                          "text":
+                                                          str(reminderDate) + " " +
+                                                          str(reminderTime),
+                                                          "color":
+                                                          "#666666",
+                                                          "size":
+                                                          "sm",
+                                                          "flex":
+                                                          5
+                                                      }]
+                                                  }, {
+                                                      "type": "text",
+                                                      "margin": "md",
+                                                      "text": reply_msg
+                                                  }]
+                                              }]
+                                          },
+                                          "footer": {
+                                              "type":
+                                              "box",
+                                              "layout":
+                                              "vertical",
+                                              "spacing":
+                                              "sm",
+                                              "contents": [{
+                                                  "type": "button",
+                                                  "action": {
+                                                    "type": "postback",
+                                                    "label": "已吃藥",
+                                                    "data": "ateMedicine"+ str(remindTimeID),
+                                                    "displayText": "已吃藥!"
+                                                  }
+                                                }],
+                                              "flex":
+                                              0
+                                          }
+                                      }))
+              print("current times", current_sendTimes)
+              postgres_manager = PostgresBaseManager()
+              postgres_manager.updateSendTimes(current_sendTimes, remindtimeID)
             remindList.pop(0)
+
+    remindTwiceList = postgres_manager.getRemindTwiceList()
+    print("remindTwiceList length:"+str(len(remindTwiceList)))
+    if len(remindTwiceList):
+        while (len(remindTwiceList)):
+            #msg = postgres_manager.getPostgresdbData()
+            reminderID = remindTwiceList[0][0]
+            reminderDate = remindTwiceList[0][1]
+            reminderTime = remindTwiceList[0][2]
+            reminderTitle = remindTwiceList[0][3]
+            remindLineID = group_id
+            #remindLineID = remindList[0][4]  #要傳送提醒的使用者Line ID
+            remindTimeID = remindTwiceList[0][5]
+            userName = remindTwiceList[0][6]
+            phoneNumber = remindTwiceList[0][8]
+            phoneNumber_url = "tel:+886-" + phoneNumber[1:]
+            print(phoneNumber_url)
+            #客製化訊息
+            type_number = postgres_manager.getReplyMsgType(remindLineID)
+            reply_msg = replyMsg(type_number)
+            #print("msg:", msg)
+            url = "https://medicine-reminder.r890910.repl.co/search-img?ReminderID=" + reminderID
+            print(url)
+
+            #更新sentTimes
+            current_sendTimes = remindTwiceList[0][7]
+            remindtimeID = remindTimeID
+           
+            if current_sendTimes == 1 and len(phoneNumber)>=10:
+              line_bot_api.push_message(
+                      remindLineID,
+                      FlexSendMessage(alt_text='吃藥提醒!',
+                                      contents={
+                                          "type": "bubble",
+                                          "hero": {
+                                                  "type": "image",
+                                                  "url": url,
+                                                  "size": "full",
+                                                  "aspectRatio": "20:13",
+                                                  "aspectMode": "cover",
+                                                  "action": {
+                                                    "type": "uri",
+                                                    "uri": url
+                                                  }
+                                              },
+                                          "body": {
+                                              "type":
+                                              "box",
+                                              "layout":
+                                              "vertical",
+                                              "contents": [{
+                                                  "type": "text",
+                                                  "text": str(userName) + "的吃藥提醒",
+                                                  "weight": "bold",
+                                                  "size": "xl",
+                                                  "wrap": True
+                                              },
+                                          
+                                              {
+                                                  "type":
+                                                  "box",
+                                                  "layout":
+                                                  "vertical",
+                                                  "margin":
+                                                  "lg",
+                                                  "spacing":
+                                                  "sm",
+                                                  "contents": [{
+                                                      "type":
+                                                      "box",
+                                                      "layout":
+                                                      "baseline",
+                                                      "spacing":
+                                                      "sm",
+                                                      
+                                                  }, {
+                                                      "type":
+                                                      "box",
+                                                      "layout":
+                                                      "baseline",
+                                                      "spacing":
+                                                      "sm",
+                                                      "contents": [{
+                                                          "type": "text",
+                                                          "text": "藥品名稱 :",
+                                                          "color": "#aaaaaa",
+                                                          "size": "sm",
+                                                          "flex": 0
+                                                      }, {
+                                                          "type":
+                                                          "text",
+                                                          "text":
+                                                          str(reminderTitle),
+                                                          "color":
+                                                          "#666666",
+                                                          "size":
+                                                          "sm",
+                                                          "flex":
+                                                          5
+                                                      }]
+                                                  }, {
+                                                      "type":
+                                                      "box",
+                                                      "layout":
+                                                      "baseline",
+                                                      "spacing":
+                                                      "sm",
+                                                      "contents": [{
+                                                          "type": "text",
+                                                          "text": "吃藥時間 :",
+                                                          "color": "#aaaaaa",
+                                                          "size": "sm",
+                                                          "flex": 0
+                                                      }, {
+                                                          "type":
+                                                          "text",
+                                                          "text":
+                                                          str(reminderDate) + " " +
+                                                          str(reminderTime),
+                                                          "color":
+                                                          "#666666",
+                                                          "size":
+                                                          "sm",
+                                                          "flex":
+                                                          5
+                                                      }]
+                                                  }, {
+                                                      "type": "text",
+                                                      "margin": "md",
+                                                      "text": str(userName)+"錯過吃藥提醒了，",
+                                                      "wrap": True,
+                                                      "weight": "bold",
+                                                      "margin": "xl"
+                                                  },
+                                                  {
+                                                      "type": "text",
+                                                      "margin": "md",
+                                                      "text": "請群組內其他成員打電話提醒他吃藥!",
+                                                      "wrap": True,
+                                                      "weight": "bold",
+                                                      "margin": "sm"
+                                                  }]
+                                              }]
+                                          },
+                                          "footer": {
+                                              "type":
+                                              "box",
+                                              "layout":
+                                              "vertical",
+                                              "spacing":
+                                              "sm",
+                                              "contents": [
+                                                {
+                                                  "type": "button",
+                                                  "style": "link",
+                                                  "height": "sm",
+                                                  "action": {
+                                                    "type": "uri",
+                                                    "label": "打電話給"+str(userName),
+                                                    "uri": phoneNumber_url
+                                                  }
+                                                },
+                                                {
+                                                  "type": "button",
+                                                  "action": {
+                                                    "type": "postback",
+                                                    "label": "已吃藥",
+                                                    "data": "ateMedicine"+ str(remindTimeID),
+                                                    "displayText": "已吃藥!"
+                                                  }
+                                                }],
+                                              "flex":
+                                              0
+                                          }
+                                      }))
+              print("current times", current_sendTimes)
+              postgres_manager = PostgresBaseManager()
+              postgres_manager.updateSendTimes(current_sendTimes, remindtimeID)
+            elif current_sendTimes == 1 and len(phoneNumber)<10:
+              line_bot_api.push_message(
+                      remindLineID,
+                      FlexSendMessage(alt_text='吃藥提醒!',
+                                      contents={
+                                          "type": "bubble",
+                                          "hero": {
+                                                  "type": "image",
+                                                  "url": url,
+                                                  "size": "full",
+                                                  "aspectRatio": "20:13",
+                                                  "aspectMode": "cover",
+                                                  "action": {
+                                                    "type": "uri",
+                                                    "uri": url
+                                                  }
+                                              },
+                                          "body": {
+                                              "type":
+                                              "box",
+                                              "layout":
+                                              "vertical",
+                                              "contents": [{
+                                                  "type": "text",
+                                                  "text": str(userName) + "的吃藥提醒",
+                                                  "weight": "bold",
+                                                  "size": "xl",
+                                                  "wrap": True
+                                              },
+                                          
+                                              {
+                                                  "type":
+                                                  "box",
+                                                  "layout":
+                                                  "vertical",
+                                                  "margin":
+                                                  "lg",
+                                                  "spacing":
+                                                  "sm",
+                                                  "contents": [{
+                                                      "type":
+                                                      "box",
+                                                      "layout":
+                                                      "baseline",
+                                                      "spacing":
+                                                      "sm",
+                                                      
+                                                  }, {
+                                                      "type":
+                                                      "box",
+                                                      "layout":
+                                                      "baseline",
+                                                      "spacing":
+                                                      "sm",
+                                                      "contents": [{
+                                                          "type": "text",
+                                                          "text": "藥品名稱 :",
+                                                          "color": "#aaaaaa",
+                                                          "size": "sm",
+                                                          "flex": 0
+                                                      }, {
+                                                          "type":
+                                                          "text",
+                                                          "text":
+                                                          str(reminderTitle),
+                                                          "color":
+                                                          "#666666",
+                                                          "size":
+                                                          "sm",
+                                                          "flex":
+                                                          5
+                                                      }]
+                                                  }, {
+                                                      "type":
+                                                      "box",
+                                                      "layout":
+                                                      "baseline",
+                                                      "spacing":
+                                                      "sm",
+                                                      "contents": [{
+                                                          "type": "text",
+                                                          "text": "吃藥時間 :",
+                                                          "color": "#aaaaaa",
+                                                          "size": "sm",
+                                                          "flex": 0
+                                                      }, {
+                                                          "type":
+                                                          "text",
+                                                          "text":
+                                                          str(reminderDate) + " " +
+                                                          str(reminderTime),
+                                                          "color":
+                                                          "#666666",
+                                                          "size":
+                                                          "sm",
+                                                          "flex":
+                                                          5
+                                                      }]
+                                                  }, {
+                                                      "type": "text",
+                                                      "margin": "md",
+                                                      "text": str(userName)+"錯過吃藥提醒囉，請盡速吃藥!",
+                                                      "wrap": True,
+                                                      "weight": "bold",
+                                                      "margin": "xl"
+                                                  },
+                                                  ]
+                                              }]
+                                          },
+                                          "footer": {
+                                              "type":
+                                              "box",
+                                              "layout":
+                                              "vertical",
+                                              "spacing":
+                                              "sm",
+                                              "contents": [
+                                                {
+                                                  "type": "button",
+                                                  "action": {
+                                                    "type": "postback",
+                                                    "label": "已吃藥",
+                                                    "data": "ateMedicine"+ str(remindTimeID),
+                                                    "displayText": "已吃藥!"
+                                                  }
+                                                }],
+                                              "flex":
+                                              0
+                                          }
+                                      }))
+              print("current times", current_sendTimes)
+              postgres_manager = PostgresBaseManager()
+              postgres_manager.updateSendTimes(current_sendTimes, remindtimeID)  
+            remindTwiceList.pop(0)
     return True
 
 
@@ -370,6 +807,7 @@ def pushTomorrowGetMedicineTextMsg():
     postgres_manager = PostgresBaseManager()
     List = postgres_manager.getTomorrowList()
 
+    print("tomorrowlist: ", len(List))
     if len(List):
         for r in List:
             reLineID = group_id
@@ -393,11 +831,12 @@ def pushTomorrowGetMedicineTextMsg():
                                             "type":
                                             "text",
                                             "text":
-                                            "明日(" + str(r[3]) + ")領藥提醒!",
+                                            str(r[0]) + "的明日(" + str(r[3]) + ")領藥提醒!",
                                             "weight":
                                             "bold",
                                             "size":
-                                            "md"
+                                            "md",
+                                            "wrap": True
                                         }, {
                                             "type":
                                             "box",
@@ -414,19 +853,7 @@ def pushTomorrowGetMedicineTextMsg():
                                                 "baseline",
                                                 "spacing":
                                                 "sm",
-                                                "contents": [{
-                                                    "type": "text",
-                                                    "text": "提醒領藥者 : ",
-                                                    "color": "#aaaaaa",
-                                                    "size": "sm",
-                                                    "flex": 0
-                                                }, {
-                                                    "type": "text",
-                                                    "text": str(r[0]),
-                                                    "color": "#666666",
-                                                    "size": "sm",
-                                                    "flex": 2
-                                                }]
+                                                
                                             }, {
                                                 "type":
                                                 "box",
@@ -500,7 +927,12 @@ def pushTomorrowGetMedicineTextMsg():
                                         }]
                                     }
                                 }))
-
+            #更新sentTimes
+            current_sendTimes = r[8]
+            remindtimeID = r[7]
+            print("current times", current_sendTimes)
+            postgres_manager = PostgresBaseManager()
+            postgres_manager.updateSendTimes(current_sendTimes, remindtimeID)
     return True
 
 
@@ -509,8 +941,8 @@ def pushTodayGetMedicineTextMsg():
     config = getKey()
     line_bot_api = LineBotApi(config["Channel access token"])
     postgres_manager = PostgresBaseManager()
-    List = postgres_manager.getTodayList()
-
+    List = postgres_manager.getTodayList1()
+    print("before30list: ", len(List))
     if len(List):
         for r in List:
             #取得日期
@@ -518,11 +950,11 @@ def pushTodayGetMedicineTextMsg():
             dt2 = dt1.astimezone(timezone(timedelta(hours=8)))  # 轉換時區 -> 東八區
             #輸出比現在時間早半小時
             remindTime = (dt2 +
-                          timedelta(minutes=-30)).strftime("%Y-%m-%d %H:%M:00")
-            #print("remind time : ", remindTime)
+                          timedelta(minutes=10)).strftime("%Y-%m-%d %H:%M:00")
+            #print("remind time (before 30): ", remindTime)
             #reLineID = r[5]
             reLineID = group_id
-
+            #print("time: ", str(r[3]) + " " + str(r[4]))
             if str(r[3]) + " " + str(r[4]) == str(remindTime):
                 #msg = '請記得於30分鐘後至診所/醫院領藥!\n' + '提醒領藥者 : ' + str(
                 #r[0]) + '\n' + '領取藥品名稱 : ' + str(
@@ -542,9 +974,10 @@ def pushTodayGetMedicineTextMsg():
                                             "vertical",
                                             "contents": [{
                                                 "type": "text",
-                                                "text": "請記得於30分鐘後至診所/醫院領藥!",
+                                                "text": str(r[0]) + ", 請記得於10分鐘後至診所/醫院領藥!",
                                                 "weight": "bold",
-                                                "size": "md"
+                                                "size": "md",
+                                                "wrap": True
                                             }, {
                                                 "type":
                                                 "box",
@@ -561,24 +994,7 @@ def pushTodayGetMedicineTextMsg():
                                                     "baseline",
                                                     "spacing":
                                                     "sm",
-                                                    "contents": [{
-                                                        "type": "text",
-                                                        "text": "提醒領藥者 : ",
-                                                        "color": "#aaaaaa",
-                                                        "size": "sm",
-                                                        "flex": 0
-                                                    }, {
-                                                        "type":
-                                                        "text",
-                                                        "text":
-                                                        str(r[0]),
-                                                        "color":
-                                                        "#666666",
-                                                        "size":
-                                                        "sm",
-                                                        "flex":
-                                                        2
-                                                    }]
+                                                    
                                                 }, {
                                                     "type":
                                                     "box",
@@ -662,7 +1078,13 @@ def pushTodayGetMedicineTextMsg():
                                             }]
                                         }
                                     }))
-
+                #更新sentTimes
+                current_sendTimes = r[7]
+                remindtimeID = r[8]
+                print("current times", current_sendTimes)
+                postgres_manager = PostgresBaseManager()
+                postgres_manager.updateSendTimes(current_sendTimes, remindtimeID)
+    
     return True
 
 
@@ -671,12 +1093,12 @@ def pushGetMedicineFlexMsg():
     config = getKey()
     line_bot_api = LineBotApi(config["Channel access token"])
     postgres_manager = PostgresBaseManager()
-    List = postgres_manager.getTodayList()
+    List = postgres_manager.getTodayList2()
     # send remind message
     #print("List length: ", len(List))
     #for r in List:
     #print(str(r[0]), str(r[1]), str(r[2]), str(r[3]), str(r[4]), str(r[5]), str(r[6]))
-
+    print("todaylist: ", len(List))
     if len(List):
         for r in List:
             #取得日期
@@ -686,6 +1108,9 @@ def pushGetMedicineFlexMsg():
             #print("now : ", now)
 
             reLineID = group_id
+            reminderID = r[1]
+            url = "https://medicine-reminder.r890910.repl.co/search-img?ReminderID=" + reminderID
+            print(url)
             #reLineID = r[5]  #要傳送提醒的使用者Line ID
             #客製化訊息
             #type_number = postgres_manager.getReplyMsgType(reLineID)
@@ -698,6 +1123,17 @@ def pushGetMedicineFlexMsg():
                     FlexSendMessage(alt_text='記得至診所/醫院領取藥品~',
                                     contents={
                                         "type": "bubble",
+                                        "hero": {
+                                                "type": "image",
+                                                "url": url,
+                                                "size": "full",
+                                                "aspectRatio": "20:13",
+                                                "aspectMode": "cover",
+                                                "action": {
+                                                  "type": "uri",
+                                                  "uri": url
+                                                }
+                                            },
                                         "body": {
                                             "type":
                                             "box",
@@ -705,9 +1141,10 @@ def pushGetMedicineFlexMsg():
                                             "vertical",
                                             "contents": [{
                                                 "type": "text",
-                                                "text": "今日領藥提醒",
+                                                "text": str(r[0]) + "的今日領藥提醒",
                                                 "weight": "bold",
-                                                "size": "xl"
+                                                "size": "xl",
+                                                "wrap": True
                                             }, {
                                                 "type":
                                                 "box",
@@ -724,24 +1161,7 @@ def pushGetMedicineFlexMsg():
                                                     "baseline",
                                                     "spacing":
                                                     "sm",
-                                                    "contents": [{
-                                                        "type": "text",
-                                                        "text": "提醒領藥者 : ",
-                                                        "color": "#aaaaaa",
-                                                        "size": "sm",
-                                                        "flex": 0
-                                                    }, {
-                                                        "type":
-                                                        "text",
-                                                        "text":
-                                                        str(r[0]),
-                                                        "color":
-                                                        "#666666",
-                                                        "size":
-                                                        "sm",
-                                                        "flex":
-                                                        2
-                                                    }]
+                                                    
                                                 }, {
                                                     "type":
                                                     "box",
@@ -836,17 +1256,210 @@ def pushGetMedicineFlexMsg():
                                                 "style": "link",
                                                 "height": "sm",
                                                 "action": {
-                                                    "type": "message",
-                                                    "label": "已領取!",
-                                                    "text": "已領取" + str(r[2])
+                                                  "type": "postback",
+                                                  "label": "已領取!",
+                                                  "data": "tookMedicine"+ str(r[8]),
+                                                    "displayText":"已領取" + str(r[2])
                                                 }
                                             }],
                                             "flex":
                                             0
                                         }
                                     }))
+                    
+                #更新sentTimes
+                current_sendTimes = r[7]
+                remindtimeID = r[8]
+                print("current times", current_sendTimes)
+                postgres_manager = PostgresBaseManager()
+                postgres_manager.updateSendTimes(current_sendTimes, remindtimeID)
     return True
 
+#推送錯過領藥通知
+def pushresetMsg():
+    config = getKey()
+    line_bot_api = LineBotApi(config["Channel access token"])
+    postgres_manager = PostgresBaseManager()
+    List = postgres_manager.getTodayList3()
+    print("reset: ", len(List))
+    if len(List):
+        for r in List:
+            #取得日期
+            dt1 = datetime.utcnow().replace(tzinfo=timezone.utc)
+            dt2 = dt1.astimezone(timezone(timedelta(hours=8)))  # 轉換時區 -> 東八區
+            #輸出比現在時間早半小時
+            before_10 = (dt2 + timedelta(minutes=-10)).strftime("%Y-%m-%d %H:%M:00")
+            #now = dt2.strftime("%Y-%m-%d %H:%M:00")
+            reLineID = group_id
+            
+            if str(r[3]) + " " + str(r[4]) == str(before_10):
+                #print("push")
+                line_bot_api.push_message(
+            reLineID,
+            FlexSendMessage(
+                alt_text='請重新設定領藥提醒!',
+                contents={
+                    "type": "bubble",
+                    "body": {
+                        "type":
+                        "box",
+                        "layout":
+                        "vertical",
+                        "contents": [{
+                            "type": "text",
+                            "text": str(r[0]) + ", 您已錯過領藥時間30分鐘!",
+                            "margin": "sm",
+                            "wrap": True,
+                            "weight": "bold"
+                        },
+                        {
+                                                "type":
+                                                "box",
+                                                "layout":
+                                                "vertical",
+                                                "margin":
+                                                "lg",
+                                                "spacing":
+                                                "sm",
+                                                "contents": [{
+                                                    "type":
+                                                    "box",
+                                                    "layout":
+                                                    "baseline",
+                                                    "spacing":
+                                                    "sm",
+                                                    "contents": [{
+                                                        "type": "text",
+                                                        "text": "提醒領藥者 : ",
+                                                        "color": "#aaaaaa",
+                                                        "size": "sm",
+                                                        "flex": 0
+                                                    }, {
+                                                        "type":
+                                                        "text",
+                                                        "text":
+                                                        str(r[0]),
+                                                        "color":
+                                                        "#666666",
+                                                        "size":
+                                                        "sm",
+                                                        "flex":
+                                                        2
+                                                    }]
+                                                }, {
+                                                    "type":
+                                                    "box",
+                                                    "layout":
+                                                    "baseline",
+                                                    "spacing":
+                                                    "sm",
+                                                    "contents": [{
+                                                        "type": "text",
+                                                        "text": "領取藥品名稱 :",
+                                                        "color": "#aaaaaa",
+                                                        "size": "sm",
+                                                        "flex": 0
+                                                    }, {
+                                                        "type":
+                                                        "text",
+                                                        "text":
+                                                        str(r[2]),
+                                                        "color":
+                                                        "#666666",
+                                                        "size":
+                                                        "sm",
+                                                        "flex":
+                                                        5
+                                                    }]
+                                                }, {
+                                                    "type":
+                                                    "box",
+                                                    "layout":
+                                                    "baseline",
+                                                    "spacing":
+                                                    "sm",
+                                                    "contents": [{
+                                                        "type": "text",
+                                                        "text": "領取時間 :",
+                                                        "color": "#aaaaaa",
+                                                        "size": "sm",
+                                                        "flex": 0
+                                                    }, {
+                                                        "type":
+                                                        "text",
+                                                        "text":
+                                                        str(r[3]) + " " +
+                                                        str(r[4]),
+                                                        "color":
+                                                        "#666666",
+                                                        "size":
+                                                        "sm",
+                                                        "flex":
+                                                        5
+                                                    }]
+                                                }, {
+                                                    "type":
+                                                    "box",
+                                                    "layout":
+                                                    "baseline",
+                                                    "spacing":
+                                                    "sm",
+                                                    "contents": [{
+                                                        "type": "text",
+                                                        "text": "領取地點 : ",
+                                                        "color": "#aaaaaa",
+                                                        "size": "sm",
+                                                        "flex": 0
+                                                    }, {
+                                                        "type":
+                                                        "text",
+                                                        "text":
+                                                        str(r[6]),
+                                                        "color":
+                                                        "#666666",
+                                                        "size":
+                                                        "sm",
+                                                        "flex":
+                                                        5
+                                                    }]
+                                                }
+                                                            ] }
+                        ,{
+                            "type": "text",
+                            "text": "請重新點選【網址】設定新的領藥提醒時間",
+                            "margin": "lg",
+                            "wrap": True
+                        }, {
+                            "type": "text",
+                            "text": "修改提醒的網址如下:",
+                            "margin": "xl"
+                        }, {
+                            "type": "text",
+                            "text": "網址",
+                            "size": "lg",
+                            "color": "#2463EB",
+                            "weight": "bold",
+                            "wrap": True,
+                            "decoration": "underline",
+                            "align": "center",
+                            "margin": "xl",
+                            "action": {
+                                "type": "uri",
+                                "label": "action",
+                                "uri":
+                                "https://medicine-reminder.r890910.repl.co"
+                            }
+                        }]
+                    }
+                }))
+            
+            #更新sentTimes
+            current_sendTimes = r[7]
+            remindtimeID = r[8]
+            #print("current times", current_sendTimes)
+            postgres_manager = PostgresBaseManager()
+            postgres_manager.updateSendTimes(current_sendTimes, remindtimeID)
+    return True
 
 #push本日準時吃幾次藥
 def pushOntimeTakeMedicine():
@@ -858,16 +1471,10 @@ def pushOntimeTakeMedicine():
     if len(List):
         for r in List:
             reLineID = group_id
-            #reLineID = r[0]
-            #print("LineID: ", reLineID)
             ontime_times = postgres_manager.getCheck(reLineID)
             msg = '恭喜您~今天準時吃藥' + str(ontime_times) + '次\n' + '請繼續保持!'
-            #print("msg: ", msg)
             if ontime_times > 0:
                 line_bot_api.push_message(reLineID, TextSendMessage(text=msg))
-            #else:
-            #msg = '恭喜您~今天準時吃藥0次\n'+'請繼續保持!'
-            #line_bot_api.push_message(reLineID, TextSendMessage(text=msg))
     return True
 
 
