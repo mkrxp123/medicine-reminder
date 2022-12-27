@@ -1,5 +1,5 @@
 from linebot import LineBotApi, WebhookHandler
-from linebot.models import TextSendMessage, ImageSendMessage, MessageEvent, TextMessage, TemplateSendMessage, ButtonsTemplate, PostbackAction, MessageTemplateAction, PostbackEvent, JoinEvent, FlexSendMessage
+from linebot.models import TextSendMessage, ImageSendMessage, MessageEvent, TextMessage, TemplateSendMessage, ButtonsTemplate, PostbackAction, MessageTemplateAction, PostbackEvent, JoinEvent, FlexSendMessage, MemberJoinedEvent
 from linebot.exceptions import LineBotApiError, InvalidSignatureError
 from flask import Flask, request, abort, render_template, redirect, url_for, jsonify, send_file
 from utility import getKey, ajaxResponse, timetable, Database, pushremindMsg, pushGetMedicineFlexMsg, pushTomorrowGetMedicineTextMsg, pushTodayGetMedicineTextMsg, pushOntimeTakeMedicine, pushresetMsg
@@ -179,6 +179,114 @@ def user_init():
 
     return ajaxResponse({'msg': 'user init successfully'})
 
+
+@handler.add(MemberJoinedEvent)
+def handle_member_joined(event):
+    group_id = event.source.group_id
+    print(group_id)
+    line_bot_api.push_message(
+        group_id,
+        FlexSendMessage(
+            alt_text='您好，謝謝您把「吃藥提醒小幫手」加進群組!',
+            contents={
+                "type": "bubble",
+                "body": {
+                    "type":
+                    "box",
+                    "layout":
+                    "vertical",
+                    "contents": [{
+                        "type":
+                        "box",
+                        "layout":
+                        "vertical",
+                        "margin":
+                        "xs",
+                        "spacing":
+                        "md",
+                        "contents": [{
+                            "type": "text",
+                            "text": "您好，謝謝您把「吃藥提醒小幫手」加進群組!",
+                            "wrap": True,
+                            "size": "md",
+                            "weight": "bold"
+                        }, {
+                            "type": "text",
+                            "text": "本機器人可以根據您所設定的資訊，在對應時間傳送line訊息提醒您「吃藥/領藥」",
+                            "wrap": True
+                        }]
+                    }]
+                }
+            }))
+    line_bot_api.push_message(
+        group_id,
+        FlexSendMessage(
+            alt_text='首先，先請您點選下方網址',
+            contents={
+                "type": "bubble",
+                "body": {
+                    "type":
+                    "box",
+                    "layout":
+                    "vertical",
+                    "contents": [{
+                        "type":
+                        "box",
+                        "layout":
+                        "vertical",
+                        "margin":
+                        "xs",
+                        "spacing":
+                        "sm",
+                        "contents": [{
+                            "type": "text",
+                            "text": "首先，先請您點選下方網址，填寫您想要設定的提醒:",
+                            "wrap": True
+                        }, {
+                            "type": "text",
+                            "text": "網址",
+                            "action": {
+                                "type": "uri",
+                                "label": "action",
+                                "uri":
+                                "https://medicine-reminder.r890910.repl.co"
+                            },
+                            "color": "#2463EB",
+                            "weight": "bold",
+                            "style": "normal",
+                            "decoration": "underline",
+                            "align": "center",
+                            "margin": "xl",
+                            "size": "lg"
+                        }, {
+                            "type": "text",
+                            "text": "填寫完成後，請點選下方的確認鍵，謝謝!",
+                            "wrap": True,
+                            "margin": "xl"
+                        }]
+                    }]
+                },
+                "footer": {
+                    "type":
+                    "box",
+                    "layout":
+                    "vertical",
+                    "spacing":
+                    "xs",
+                    "contents": [{
+                        "type": "button",
+                        "style": "link",
+                        "action": {
+                            "type": "message",
+                            "label": "已填寫完成!",
+                            "text": "已填寫完成!"
+                        },
+                        "height": "sm"
+                    }],
+                    "flex":
+                    0
+                }
+            }))
 
 @handler.add(JoinEvent)
 def handle_join(event):
@@ -982,8 +1090,8 @@ if __name__ == '__main__':
     time = dt2.strftime("%H:%M:00")
     #print("time: ", time)
 
-    #if str(time) == "20:53:00":
-    pushTomorrowGetMedicineTextMsg()  #傳送明天的領藥提醒
+    if str(time) == "20:53:00":
+      pushTomorrowGetMedicineTextMsg()  #傳送明天的領藥提醒
     pushTodayGetMedicineTextMsg()  #傳送30分鐘前的領藥提醒
     pushGetMedicineFlexMsg()  #傳送領藥提醒check box
     pushresetMsg() #傳送重新設定領藥的提醒

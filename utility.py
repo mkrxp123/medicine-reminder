@@ -11,9 +11,8 @@ from sqlalchemy.sql.expression import func
 from sqlalchemy.orm import sessionmaker
 from datetime import date, timedelta, datetime
 
-group_id = "Cd77b64937d80d148c9e1f2ccbf947eee"
-#group_id = "Cd77b64937d80d148c9e1f2ccbf947eee"
-#group_id = "C746700ffec937db8dfa4197ad15ca16a"
+group_id = "C0814d7a66ea58a4af68f5111e809224f"
+
 class Database:
 
     user = 'postgres'
@@ -964,7 +963,7 @@ def pushTodayGetMedicineTextMsg():
                 #line_bot_api.push_message(reLineID, TextSendMessage(text=msg))
                 line_bot_api.push_message(
                     reLineID,
-                    FlexSendMessage(alt_text='請記得於30分鐘後至診所/醫院領藥!',
+                    FlexSendMessage(alt_text='請記得於10分鐘後至診所/醫院領藥!',
                                     contents={
                                         "type": "bubble",
                                         "body": {
